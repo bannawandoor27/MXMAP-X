@@ -30,3 +30,9 @@ async def explore(request: Request):
 async def recipes(request: Request):
     """Recipe card interface."""
     return templates.TemplateResponse("recipe.html", {"request": request})
+
+
+@router.get("/electrochromic", response_class=HTMLResponse)
+async def electrochromic(request: Request):
+    """Electrochromic visualization interface."""
+    return templates.TemplateResponse("electrochromic.html", {"request": request})
