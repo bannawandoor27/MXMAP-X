@@ -30,7 +30,26 @@ class DummyPredictor(BasePredictor):
         
         # Add feature engineer for chemistry explorer compatibility
         from app.ml.feature_engineering import FeatureEngineer
+        import pandas as pd
         self.feature_engineer = FeatureEngineer()
+        
+        # Fit feature engineer with dummy data so it can be used for transformations
+        dummy_data = pd.DataFrame([{
+            "mxene_type": "Ti3C2Tx",
+            "terminations": "O",
+            "electrolyte": "H2SO4",
+            "electrolyte_concentration": 1.0,
+            "thickness_um": 5.0,
+            "deposition_method": "vacuum_filtration",
+            "annealing_temp_c": 150.0,
+            "annealing_time_min": 60.0,
+            "interlayer_spacing_nm": 1.2,
+            "specific_surface_area_m2g": 100.0,
+            "pore_volume_cm3g": 0.15,
+            "optical_transmittance": 0.7,
+            "sheet_resistance_ohm_sq": 10.0,
+        }])
+        self.feature_engineer.fit(dummy_data)
 
     async def predict(self, request: PredictionRequest) -> PredictionResult:
         """
