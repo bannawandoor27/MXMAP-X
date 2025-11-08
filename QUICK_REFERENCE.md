@@ -71,6 +71,16 @@ GET  /api/v1/devices/{id}        # Get device details
 POST /api/v1/devices             # Add training data
 ```
 
+### Advanced Features
+
+```bash
+POST /api/v1/optimize            # Multi-objective optimization
+GET  /api/v1/explore             # Chemistry space map (UMAP)
+POST /api/v1/compare             # Compare candidates
+GET  /api/v1/recipes/{id}        # Export recipe card
+WS   /api/v1/ws/predict          # WebSocket predictions
+```
+
 ## 🧪 Example Requests
 
 ### Single Prediction

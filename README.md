@@ -228,6 +228,27 @@ Content-Type: application/json
 GET /api/v1/models/metrics
 ```
 
+### Advanced Features
+
+```bash
+# Multi-objective optimization
+POST /api/v1/optimize
+
+# Chemistry space exploration
+GET /api/v1/explore
+
+# Compare candidates
+POST /api/v1/compare
+
+# Export recipe card
+GET /api/v1/recipes/{id}
+
+# WebSocket predictions
+WS /api/v1/ws/predict
+```
+
+See [Advanced Features Documentation](docs/ADVANCED_FEATURES.md) for details.
+
 ## 🧪 Testing
 
 ```bash
@@ -413,7 +434,7 @@ Built with FastAPI, SQLAlchemy, and the Python scientific stack.
 
 ---
 
-**Status**: Phase 1 & ML Pipeline Complete ✅
+**Status**: Complete Implementation ✅
 - ✅ Core API with FastAPI
 - ✅ Database schema and migrations
 - ✅ Synthetic data generation (300 samples)
@@ -422,6 +443,11 @@ Built with FastAPI, SQLAlchemy, and the Python scientific stack.
 - ✅ Uncertainty quantification (95% CI)
 - ✅ Model persistence and versioning
 - ✅ Cross-validation and evaluation
+- ✅ Multi-objective optimization (Pareto frontier)
+- ✅ Chemistry space exploration (UMAP)
+- ✅ Candidate comparison
+- ✅ Recipe card export
+- ✅ WebSocket for real-time predictions
 - ✅ Comprehensive documentation
 
-**Next**: Multi-objective optimization and active learning
+**Ready for PhD Application Portfolio** 🎓

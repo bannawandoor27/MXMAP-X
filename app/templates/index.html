@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div x-data="predictionData()" class="px-4 py-6">
+    <!-- Header -->
+    <div class="mb-8 flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">MXene Supercapacitor Performance Prediction</h1>
+            <p class="mt-2 text-gray-600">Design and predict supercapacitor performance with AI-powered uncertainty quantification</p>
+        </div>
+        <div class="flex space-x-2">
+            <button @click="showComparison = !showComparison" 
+                    class="px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                Compare (<span x-text="savedPredictions.length"></span>)
+            </button>
+            <label class="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" x-model="autoPredict" class="rounded text-purple-600 focus:ring-purple-500">
+                <span class="text-sm font-medium text-gray-700">Auto-predict</span>
+            </label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Input Form -->
+        <div class="lg:col-span-2">
+            <div class="bg-white shadow rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Device Composition</h2>
+                
+                <form @submit.prevent="predict()" class="space-y-4">
+                    <!-- Material Composition -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">MXene Type</label>
+                            <select x-model="form.mxene_type" @change="handleFormChange()" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">
+                                <option value="Ti3C2Tx">Ti₃C₂Tₓ</option>
+                                <option value="Mo2CTx">Mo₂CTₓ</option>
+                                <option value="V2CTx">V₂CTₓ</option>
+                                <option value="Ti2CTx">Ti₂CTₓ</option>
+                                <option value="Nb2CTx">Nb₂CTₓ</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Terminations</label>
+                            <select x-model="form.terminations" @change="handleFormChange()"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">
+                                <option value="O">O</option>
+                                <option value="OH">OH</option>
+                                <option value="F">F</option>
+                                <option value="mixed">Mixed</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Electrolyte</label>
+                            <select x-model="form.electrolyte" @change="handleFormChange()"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">
+                                <option value="H2SO4">H₂SO₄</option>
+                                <option value="KOH">KOH</option>
+                                <option value="NaOH">NaOH</option>
+                                <option value="ionic_liquid">Ionic Liquid</option>
+                                <option value="PVA_H2SO4">PVA-H₂SO₄</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Thickness with Slider -->
+                        <div class="md:col-span-2">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block text-sm font-medium text-gray-700">Thickness (μm)</label>
+                                <span class="text-sm font-semibold text-purple-600" x-text="form.thickness_um"></span>
+                            </div>
+                            <input type="range" x-model="form.thickness_um" @input="handleFormChange()" 
+                                   min="0.5" max="50" step="0.5"
+                                   class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider">
+                            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                <span>0.5</span>
+                                <span>25</span>
+                                <span>50</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Deposition Method</label>
+                            <select x-model="form.deposition_method" @change="handleFormChange()"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">
+                                <option value="vacuum_filtration">Vacuum Filtration</option>
+                                <option value="spray_coating">Spray Coating</option>
+                                <option value="drop_casting">Drop Casting</option>
+                                <option value="spin_coating">Spin Coating</option>
+                                <option value="blade_coating">Blade Coating</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Electrolyte Concentration with Slider -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block text-sm font-medium text-gray-700">Electrolyte Conc. (M)</label>
+                                <span class="text-sm font-semibold text-purple-600" x-text="form.electrolyte_concentration || 'N/A'"></span>
+                            </div>
+                            <input type="range" x-model="form.electrolyte_concentration" @input="handleFormChange()"
+                                   min="0.1" max="10" step="0.1"
+                                   class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider">
+                        </div>
+                    </div>
+                    
+                    <!-- Optional Parameters (Collapsible) -->
+                    <div class="border-t pt-4">
+                        <button type="button" @click="showAdvanced = !showAdvanced" 
+                                class="flex items-center text-sm font-medium text-purple-600 hover:text-purple-700">
+                            <svg class="w-4 h-4 mr-1 transition-transform" :class="{'rotate-90': showAdvanced}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                            Advanced Parameters (Optional)
+                        </button>
+                        
+                        <div x-show="showAdvanced" x-collapse class="mt-4 space-y-4">
+                            <!-- Annealing Temperature with Slider -->
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <label class="block text-sm font-medium text-gray-700">Annealing Temp (°C)</label>
+                                    <span class="text-sm font-semibold text-purple-600" x-text="form.annealing_temp_c || 'N/A'"></span>
+                                </div>
+                                <input type="range" x-model="form.annealing_temp_c" @input="handleFormChange()"
+                                       min="25" max="500" step="5"
+                                       class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider">
+                                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                    <span>25°C</span>
+                                    <span>250°C</span>
+                                    <span>500°C</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Annealing Time with Slider -->
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <label class="block text-sm font-medium text-gray-700">Annealing Time (min)</label>
+                                    <span class="text-sm font-semibold text-purple-600" x-text="form.annealing_time_min || 'N/A'"></span>
+                                </div>
+                                <input type="range" x-model="form.annealing_time_min" @input="handleFormChange()"
+                                       min="0" max="240" step="10"
+                                       class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider">
+                            </div>
+                            
+                            <!-- Interlayer Spacing with Slider -->
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <label class="block text-sm font-medium text-gray-700">Interlayer Spacing (nm)</label>
+                                    <span class="text-sm font-semibold text-purple-600" x-text="form.interlayer_spacing_nm || 'N/A'"></span>
+                                </div>
+                                <input type="range" x-model="form.interlayer_spacing_nm" @input="handleFormChange()"
+                                       min="0.5" max="5" step="0.1"
+                                       class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider">
+                            </div>
+                            
+                            <!-- Surface Area with Slider -->
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <label class="block text-sm font-medium text-gray-700">Surface Area (m²/g)</label>
+                                    <span class="text-sm font-semibold text-purple-600" x-text="form.specific_surface_area_m2g || 'N/A'"></span>
+                                </div>
+                                <input type="range" x-model="form.specific_surface_area_m2g" @input="handleFormChange()"
+                                       min="1" max="500" step="5"
+                                       class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="flex items-center justify-between pt-4">
+                        <div class="flex space-x-2">
+                            <button type="button" @click="loadExample()" 
+                                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition">
+                                Load Example
+                            </button>
+                            <button type="button" @click="clearForm()" 
+                                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition">
+                                Clear
+                            </button>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button type="button" @click="saveForComparison()" :disabled="!result"
+                                    class="px-4 py-2 text-sm font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition">
+                                Save for Comparison
+                            </button>
+                            <button type="submit" :disabled="loading" 
+                                    class="px-6 py-2 bg-purple-600 text-white font-medium rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition">
+                                <span x-show="!loading">Predict Performance</span>
+                                <span x-show="loading" class="flex items-center">
+                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Predicting...
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Results Panel -->
+        <div class="lg:col-span-1">
+            <div class="bg-white shadow rounded-lg p-6 sticky top-6">
+                <h2 class="text-xl font-semibold mb-4">Prediction Results</h2>
+                
+                <div x-show="!result" class="text-center py-12 text-gray-400">
+                    <svg class="mx-auto h-12 w-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <p>Enter device parameters and click "Predict Performance" to see results</p>
+                </div>
+                
+                <div x-show="result" x-cloak class="space-y-4 fade-in">
+                    <!-- Capacitance -->
+                    <div class="border-l-4 border-blue-500 pl-4">
+                        <div class="text-sm text-gray-600">Areal Capacitance</div>
+                        <div class="text-2xl font-bold text-gray-900" x-text="result?.areal_capacitance?.value + ' mF/cm²'"></div>
+                        <div class="text-xs text-gray-500">
+                            95% CI: <span x-text="result?.areal_capacitance?.lower_ci"></span> - <span x-text="result?.areal_capacitance?.upper_ci"></span>
+                        </div>
+                        <div class="mt-1">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+                                  :class="{
+                                      'bg-green-100 text-green-800': result?.areal_capacitance?.confidence === 'high',
+                                      'bg-yellow-100 text-yellow-800': result?.areal_capacitance?.confidence === 'medium',
+                                      'bg-red-100 text-red-800': result?.areal_capacitance?.confidence === 'low'
+                                  }"
+                                  x-text="result?.areal_capacitance?.confidence + ' confidence'"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- ESR -->
+                    <div class="border-l-4 border-green-500 pl-4">
+                        <div class="text-sm text-gray-600">ESR</div>
+                        <div class="text-2xl font-bold text-gray-900" x-text="result?.esr?.value + ' Ω'"></div>
+                        <div class="text-xs text-gray-500">
+                            95% CI: <span x-text="result?.esr?.lower_ci"></span> - <span x-text="result?.esr?.upper_ci"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Rate Capability -->
+                    <div class="border-l-4 border-purple-500 pl-4">
+                        <div class="text-sm text-gray-600">Rate Capability</div>
+                        <div class="text-2xl font-bold text-gray-900" x-text="result?.rate_capability?.value + '%'"></div>
+                        <div class="text-xs text-gray-500">
+                            95% CI: <span x-text="result?.rate_capability?.lower_ci"></span> - <span x-text="result?.rate_capability?.upper_ci"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Cycle Life -->
+                    <div class="border-l-4 border-orange-500 pl-4">
+                        <div class="text-sm text-gray-600">Cycle Life</div>
+                        <div class="text-2xl font-bold text-gray-900" x-text="result?.cycle_life?.value?.toLocaleString() + ' cycles'"></div>
+                        <div class="text-xs text-gray-500">
+                            95% CI: <span x-text="result?.cycle_life?.lower_ci?.toLocaleString()"></span> - <span x-text="result?.cycle_life?.upper_ci?.toLocaleString()"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Overall Confidence -->
+                    <div class="pt-4 border-t">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Overall Confidence</span>
+                            <span class="text-lg font-semibold capitalize" x-text="result?.overall_confidence"></span>
+                        </div>
+                        <div class="mt-2 w-full bg-gray-200 rounded-full h-2">
+                            <div class="h-2 rounded-full transition-all duration-500"
+                                 :class="{
+                                     'bg-green-500': result?.overall_confidence === 'high',
+                                     'bg-yellow-500': result?.overall_confidence === 'medium',
+                                     'bg-red-500': result?.overall_confidence === 'low'
+                                 }"
+                                 :style="`width: ${(result?.confidence_score || 0) * 100}%`"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Metadata -->
+                    <div class="pt-4 border-t text-xs text-gray-500 space-y-1">
+                        <div>Model: <span x-text="result?.model_version"></span></div>
+                        <div>Prediction time: <span x-text="result?.prediction_time_ms?.toFixed(1)"></span> ms</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function predictionData() {
+        return {
+            loading: false,
+            showAdvanced: false,
+            form: {
+                mxene_type: 'Ti3C2Tx',
+                terminations: 'O',
+                electrolyte: 'H2SO4',
+                thickness_um: 5.0,
+                deposition_method: 'vacuum_filtration',
+                electrolyte_concentration: null,
+                annealing_temp_c: null,
+                annealing_time_min: null,
+                interlayer_spacing_nm: null,
+                specific_surface_area_m2g: null,
+                pore_volume_cm3g: null,
+                optical_transmittance: null,
+                sheet_resistance_ohm_sq: null
+            },
+            result: null,
+            
+            async predict() {
+                this.loading = true;
+                try {
+                    // Clean form data (remove null values)
+                    const data = Object.fromEntries(
+                        Object.entries(this.form).filter(([_, v]) => v !== null && v !== '')
+                    );
+                    
+                    this.result = await this.apiCall('POST', '/predict', data);
+                    this.showToast('Prediction completed successfully!', 'success');
+                } catch (error) {
+                    console.error('Prediction failed:', error);
+                } finally {
+                    this.loading = false;
+                }
+            },
+            
+            loadExample() {
+                this.form = {
+                    mxene_type: 'Ti3C2Tx',
+                    terminations: 'O',
+                    electrolyte: 'H2SO4',
+                    thickness_um: 5.0,
+                    deposition_method: 'vacuum_filtration',
+                    electrolyte_concentration: 1.0,
+                    annealing_temp_c: 120,
+                    annealing_time_min: 60,
+                    interlayer_spacing_nm: 1.2,
+                    specific_surface_area_m2g: 98.5,
+                    pore_volume_cm3g: null,
+                    optical_transmittance: null,
+                    sheet_resistance_ohm_sq: null
+                };
+                this.showAdvanced = true;
+                this.showToast('Example loaded', 'success');
+            }
+        }
+    }
+</script>
+{% endblock %}
