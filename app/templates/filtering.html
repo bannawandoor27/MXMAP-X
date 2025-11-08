@@ -1,0 +1,414 @@
+{% extends "base.html" %}
+
+{% block title %}AC-Line Filtering - MXMAP-X{% endblock %}
+
+{% block content %}
+<div x-data="filteringApp()" x-init="init()" class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">AC-Line Filtering Mode</h1>
+        <p class="text-gray-600">Design on-chip MXene MSCs for AC-line filtering applications</p>
+    </div>
+
+    <!-- KPIs Header -->
+    <div x-show="results" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
+        <div class="bg-blue-50 p-4 rounded-lg">
+            <div class="text-sm text-gray-600">Phase @ 120 Hz</div>
+            <div class="text-2xl font-bold text-blue-600" x-text="results?.kpis?.phase_deg_120hz?.toFixed(1) + '°'"></div>
+        </div>
+        <div class="bg-green-50 p-4 rounded-lg">
+            <div class="text-sm text-gray-600">C @ 120 Hz</div>
+            <div class="text-2xl font-bold text-green-600" x-text="results?.kpis?.capacitance_mf_cm2_120hz?.toFixed(1) + ' mF/cm²'"></div>
+        </div>
+        <div class="bg-purple-50 p-4 rounded-lg">
+            <div class="text-sm text-gray-600">|Z| @ 120 Hz</div>
+            <div class="text-2xl font-bold text-purple-600" x-text="results?.kpis?.impedance_ohm_120hz?.toFixed(2) + ' Ω'"></div>
+        </div>
+        <div class="bg-orange-50 p-4 rounded-lg">
+            <div class="text-sm text-gray-600">Atten @ 50 Hz</div>
+            <div class="text-2xl font-bold text-orange-600" x-text="results?.kpis?.attenuation_db_50hz?.toFixed(1) + ' dB'"></div>
+        </div>
+        <div class="bg-red-50 p-4 rounded-lg">
+            <div class="text-sm text-gray-600">Atten @ 60 Hz</div>
+            <div class="text-2xl font-bold text-red-600" x-text="results?.kpis?.attenuation_db_60hz?.toFixed(1) + ' dB'"></div>
+        </div>
+        <div class="bg-indigo-50 p-4 rounded-lg">
+            <div class="text-sm text-gray-600">f(φ=-60°)</div>
+            <div class="text-2xl font-bold text-indigo-600" x-text="(results?.kpis?.f_phi_minus60_deg_hz / 1000)?.toFixed(1) + ' kHz'"></div>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <div class="text-sm text-gray-600">Device Area</div>
+            <div class="text-2xl font-bold text-gray-600" x-text="results?.kpis?.device_area_mm2?.toFixed(2) + ' mm²'"></div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Panel: Inputs -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-bold mb-4">Configuration</h2>
+
+                <!-- Presets -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Load Resistance</label>
+                    <select x-model="loadResistance" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <option value="10">10 Ω</option>
+                        <option value="33">33 Ω</option>
+                        <option value="100">100 Ω</option>
+                    </select>
+                </div>
+
+                <!-- Geometry -->
+                <h3 class="font-semibold mb-3">Electrode Geometry</h3>
+                <div class="space-y-3 mb-6">
+                    <div>
+                        <label class="block text-sm text-gray-600">Finger Width (μm)</label>
+                        <input type="number" x-model.number="geometry.finger_width_um" class="w-full px-3 py-2 border rounded-md" min="2" max="50" step="0.5">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600">Finger Spacing (μm)</label>
+                        <input type="number" x-model.number="geometry.finger_spacing_um" class="w-full px-3 py-2 border rounded-md" min="2" max="50" step="0.5">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600">Finger Length (μm)</label>
+                        <input type="number" x-model.number="geometry.finger_length_um" class="w-full px-3 py-2 border rounded-md" min="500" max="10000" step="100">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600">Fingers per Electrode</label>
+                        <input type="number" x-model.number="geometry.num_fingers_per_electrode" class="w-full px-3 py-2 border rounded-md" min="10" max="200" step="5">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600">Overlap Length (μm)</label>
+                        <input type="number" x-model.number="geometry.overlap_length_um" class="w-full px-3 py-2 border rounded-md" min="400" max="9500" step="100">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600">Thickness (nm)</label>
+                        <input type="number" x-model.number="geometry.thickness_nm" class="w-full px-3 py-2 border rounded-md" min="50" max="1000" step="10">
+                    </div>
+                </div>
+
+                <!-- MXene Film -->
+                <h3 class="font-semibold mb-3">MXene Film</h3>
+                <div class="space-y-3 mb-6">
+                    <div>
+                        <label class="block text-sm text-gray-600">Porosity (%)</label>
+                        <input type="number" x-model.number="mxeneFilm.porosity_pct" class="w-full px-3 py-2 border rounded-md" min="10" max="60" step="1">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600">Sheet Resistance (Ω/sq)</label>
+                        <input type="number" x-model.number="mxeneFilm.sheet_res_ohm_sq" class="w-full px-3 py-2 border rounded-md" min="1" max="1000" step="1">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600">Electrolyte</label>
+                        <select x-model="mxeneFilm.electrolyte" class="w-full px-3 py-2 border rounded-md">
+                            <option value="PVA/H2SO4">PVA/H₂SO₄</option>
+                            <option value="PVA/KOH">PVA/KOH</option>
+                            <option value="ionic_liquid">Ionic Liquid</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600">Process</label>
+                        <select x-model="mxeneFilm.process" class="w-full px-3 py-2 border rounded-md">
+                            <option value="photolithography">Photolithography</option>
+                            <option value="inkjet">Inkjet</option>
+                            <option value="screen_printing">Screen Printing</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- CSV Upload -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <input type="checkbox" x-model="fitFromData" class="mr-2">
+                        Fit from CSV Data
+                    </label>
+                    <input x-show="fitFromData" type="file" @change="handleFileUpload" accept=".csv" class="w-full text-sm">
+                </div>
+
+                <!-- Actions -->
+                <div class="space-y-3">
+                    <button @click="predict()" :disabled="loading" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50">
+                        <span x-show="!loading">Predict Performance</span>
+                        <span x-show="loading">Computing...</span>
+                    </button>
+                    <button @click="showOptimizer = !showOptimizer" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700">
+                        Layout Optimizer
+                    </button>
+                    <button @click="exportRecipe()" :disabled="!results" class="w-full bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 disabled:opacity-50">
+                        Export Recipe
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Plots -->
+        <div class="lg:col-span-2">
+            <div class="space-y-6">
+                <!-- Bode Plot -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-xl font-bold mb-4">Bode Plot</h2>
+                    <div id="bodePlot" style="height: 400px;"></div>
+                </div>
+
+                <!-- Nyquist Plot -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-xl font-bold mb-4">Nyquist Plot</h2>
+                    <div id="nyquistPlot" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Optimizer Modal -->
+    <div x-show="showOptimizer" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click.self="showOptimizer = false">
+        <div class="bg-white rounded-lg shadow-xl p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <h2 class="text-2xl font-bold mb-4">Layout Optimizer</h2>
+            
+            <!-- Constraints -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Max Area (mm²)</label>
+                    <input type="number" x-model.number="constraints.max_area_mm2" class="w-full px-3 py-2 border rounded-md" step="0.5">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Min Spacing (μm)</label>
+                    <input type="number" x-model.number="constraints.min_spacing_um" class="w-full px-3 py-2 border rounded-md" step="0.5">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Target Phase @ 120 Hz (°)</label>
+                    <input type="number" x-model.number="constraints.targets.phase_deg_120hz" class="w-full px-3 py-2 border rounded-md" step="1">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Min C @ 120 Hz (mF/cm²)</label>
+                    <input type="number" x-model.number="constraints.targets.C_min_mf_cm2_120hz" class="w-full px-3 py-2 border rounded-md" step="0.5">
+                </div>
+            </div>
+
+            <button @click="optimize()" :disabled="optimizing" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50 mb-4">
+                <span x-show="!optimizing">Run Optimization</span>
+                <span x-show="optimizing">Optimizing...</span>
+            </button>
+
+            <!-- Solutions Table -->
+            <div x-show="optimizationResults">
+                <h3 class="font-bold mb-2">Pareto-Optimal Solutions (<span x-text="optimizationResults?.num_feasible"></span> feasible)</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Area (mm²)</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Phase @ 120Hz</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">C (mF/cm²)</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">|Z| (Ω)</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <template x-for="(sol, idx) in optimizationResults?.solutions" :key="idx">
+                                <tr class="hover:bg-gray-50 cursor-pointer" @click="previewSolution(sol)">
+                                    <td class="px-4 py-2" x-text="sol.kpis.device_area_mm2.toFixed(2)"></td>
+                                    <td class="px-4 py-2" x-text="sol.kpis.phase_deg_120hz.toFixed(1) + '°'"></td>
+                                    <td class="px-4 py-2" x-text="sol.kpis.capacitance_mf_cm2_120hz.toFixed(1)"></td>
+                                    <td class="px-4 py-2" x-text="sol.kpis.impedance_ohm_120hz.toFixed(2)"></td>
+                                    <td class="px-4 py-2">
+                                        <button @click.stop="applySolution(sol)" class="text-blue-600 hover:text-blue-800">Apply</button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <button @click="showOptimizer = false" class="mt-4 w-full bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+<script>
+function filteringApp() {
+    return {
+        loading: false,
+        optimizing: false,
+        showOptimizer: false,
+        fitFromData: false,
+        csvFile: null,
+        loadResistance: 33,
+        geometry: {
+            finger_width_um: 8,
+            finger_spacing_um: 8,
+            finger_length_um: 2000,
+            num_fingers_per_electrode: 50,
+            overlap_length_um: 1800,
+            thickness_nm: 200,
+            substrate: "Si/SiO2"
+        },
+        mxeneFilm: {
+            flake_size_um: 2.0,
+            porosity_pct: 30,
+            sheet_res_ohm_sq: 10,
+            terminations: "-O,-OH",
+            electrolyte: "PVA/H2SO4",
+            process: "photolithography"
+        },
+        constraints: {
+            max_area_mm2: 4.0,
+            min_spacing_um: 5.0,
+            targets: {
+                phase_deg_120hz: -85,
+                C_min_mf_cm2_120hz: 10,
+                Z_max_ohm_120hz: 2.0
+            }
+        },
+        results: null,
+        optimizationResults: null,
+
+        init() {
+            console.log('Filtering app initialized');
+        },
+
+        async predict() {
+            this.loading = true;
+            try {
+                const response = await fetch('/api/v1/filtering/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        frequency_range_hz: [1, 100000],
+                        load_resistance_ohm: parseFloat(this.loadResistance),
+                        geometry: this.geometry,
+                        mxene_film: this.mxeneFilm,
+                        fit_from_data: { enable: false }
+                    })
+                });
+                
+                if (!response.ok) throw new Error('Prediction failed');
+                
+                this.results = await response.json();
+                this.plotBode();
+                this.plotNyquist();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async optimize() {
+            this.optimizing = true;
+            try {
+                const response = await fetch('/api/v1/filtering/optimize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        frequency_range_hz: [1, 100000],
+                        load_resistance_ohm: parseFloat(this.loadResistance),
+                        mxene_film: this.mxeneFilm,
+                        constraints: this.constraints
+                    })
+                });
+                
+                if (!response.ok) throw new Error('Optimization failed');
+                
+                this.optimizationResults = await response.json();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                this.optimizing = false;
+            }
+        },
+
+        previewSolution(solution) {
+            // Update results to show this solution
+            this.results = {
+                kpis: solution.kpis,
+                bode: solution.bode,
+                nyquist: solution.nyquist,
+                params: solution.params,
+                recipe: { geometry: solution.geometry, mxene_film: this.mxeneFilm, assumptions: "" }
+            };
+            this.plotBode();
+            this.plotNyquist();
+        },
+
+        applySolution(solution) {
+            this.geometry = solution.geometry;
+            this.showOptimizer = false;
+            this.predict();
+        },
+
+        plotBode() {
+            if (!this.results) return;
+            
+            const trace1 = {
+                x: this.results.bode.freq_hz,
+                y: this.results.bode.mag_ohm,
+                name: '|Z|',
+                type: 'scatter',
+                mode: 'lines',
+                line: { color: 'blue' },
+                yaxis: 'y1'
+            };
+            
+            const trace2 = {
+                x: this.results.bode.freq_hz,
+                y: this.results.bode.phase_deg,
+                name: 'Phase',
+                type: 'scatter',
+                mode: 'lines',
+                line: { color: 'red' },
+                yaxis: 'y2'
+            };
+            
+            const layout = {
+                xaxis: { type: 'log', title: 'Frequency (Hz)' },
+                yaxis: { type: 'log', title: '|Z| (Ω)', side: 'left' },
+                yaxis2: { title: 'Phase (°)', side: 'right', overlaying: 'y' },
+                showlegend: true,
+                hovermode: 'x unified'
+            };
+            
+            Plotly.newPlot('bodePlot', [trace1, trace2], layout, { responsive: true });
+        },
+
+        plotNyquist() {
+            if (!this.results) return;
+            
+            const trace = {
+                x: this.results.nyquist.re_ohm,
+                y: this.results.nyquist.im_ohm.map(v => -v),
+                type: 'scatter',
+                mode: 'lines+markers',
+                marker: { size: 4, color: 'purple' },
+                line: { color: 'purple' }
+            };
+            
+            const layout = {
+                xaxis: { title: 'Re(Z) (Ω)' },
+                yaxis: { title: '-Im(Z) (Ω)', scaleanchor: 'x' },
+                hovermode: 'closest'
+            };
+            
+            Plotly.newPlot('nyquistPlot', [trace], layout, { responsive: true });
+        },
+
+        exportRecipe() {
+            if (!this.results) return;
+            const blob = new Blob([JSON.stringify(this.results.recipe, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'filtering_recipe.json';
+            a.click();
+        },
+
+        handleFileUpload(event) {
+            this.csvFile = event.target.files[0];
+        }
+    };
+}
+</script>
+{% endblock %}

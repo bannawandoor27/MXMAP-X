@@ -36,3 +36,9 @@ async def recipes(request: Request):
 async def electrochromic(request: Request):
     """Electrochromic visualization interface."""
     return templates.TemplateResponse("electrochromic.html", {"request": request})
+
+
+@router.get("/filtering", response_class=HTMLResponse)
+async def filtering(request: Request):
+    """AC-line filtering interface."""
+    return templates.TemplateResponse("filtering.html", {"request": request})

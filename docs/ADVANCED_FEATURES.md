@@ -709,3 +709,289 @@ ws.onmessage = (event) => {
 **Last Updated**: 2024-01-15  
 **API Version**: v1  
 **Status**: Production Ready ✅
+
+
+## AC-Line Filtering Mode
+
+### Overview
+
+The AC-Line Filtering Mode enables design and optimization of on-chip MXene microsupercapacitors (MSCs) for AC-line filtering applications. This mode predicts electrochemical impedance spectroscopy (EIS) behavior, phase angles, and ripple attenuation performance for interdigitated electrode geometries.
+
+### Key Features
+
+- **EIS Surrogate Model**: Rs + (CPE || Rleak) circuit model for accurate impedance prediction
+- **Geometry-to-Parameters Mapping**: Converts electrode geometry to circuit parameters
+- **Layout Optimization**: NSGA-II inspired multi-objective optimization for minimal footprint
+- **Bode/Nyquist Visualization**: Interactive plots with frequency-specific readouts
+- **CSV Data Fitting**: Fit circuit parameters from measured impedance data
+- **Recipe Export**: JSON export of optimized geometries and fabrication parameters
+
+### Circuit Model
+
+The filtering mode uses a constant phase element (CPE) based circuit:
+
+```
+Z(jω) = Rs + (Z_CPE || R_leak)
+
+where:
+  Z_CPE(jω) = 1 / (Q * (jω)^α)
+  0 < α ≤ 1
+```
+
+**Parameters:**
+- **Rs**: Series resistance (Ω) - includes sheet resistance and contact resistance
+- **Q**: CPE coefficient (F·s^(α-1)) - scales with active area and porosity
+- **α**: CPE exponent - depends on porosity and surface roughness (0.75-0.95)
+- **R_leak**: Leakage resistance (Ω) - typically very high for solid/gel electrolytes
+
+### Key Performance Indicators (KPIs)
+
+1. **Phase @ 120 Hz**: Target ≤ -80° for good filtering (ideal capacitor = -90°)
+2. **Capacitance @ 120 Hz**: Areal capacitance in mF/cm²
+3. **Impedance @ 120 Hz**: |Z| in Ω (lower is better for filtering)
+4. **Attenuation @ 50/60 Hz**: Ripple attenuation in dB (negative = filtering)
+5. **f(φ=-60°)**: Frequency where phase reaches -60° (kHz response)
+6. **Device Area**: Total footprint in mm²
+
+### API Endpoints
+
+#### POST /api/v1/filtering/predict
+
+Predict filtering performance for a given geometry.
+
+**Request:**
+```json
+{
+  "frequency_range_hz": [1, 100000],
+  "load_resistance_ohm": 33,
+  "geometry": {
+    "finger_width_um": 8,
+    "finger_spacing_um": 8,
+    "finger_length_um": 2000,
+    "num_fingers_per_electrode": 50,
+    "overlap_length_um": 1800,
+    "thickness_nm": 200,
+    "substrate": "Si/SiO2"
+  },
+  "mxene_film": {
+    "flake_size_um": 2.0,
+    "porosity_pct": 30,
+    "sheet_res_ohm_sq": 10,
+    "terminations": "-O,-OH",
+    "electrolyte": "PVA/H2SO4",
+    "process": "photolithography"
+  },
+  "fit_from_data": {
+    "enable": false,
+    "digitized_bode_csv_path": null
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "kpis": {
+    "phase_deg_120hz": -86.4,
+    "capacitance_mf_cm2_120hz": 12.1,
+    "impedance_ohm_120hz": 1.4,
+    "attenuation_db_50hz": -18.2,
+    "attenuation_db_60hz": -18.7,
+    "f_phi_minus60_deg_hz": 18500,
+    "device_area_mm2": 3.20
+  },
+  "bode": {
+    "freq_hz": [...],
+    "mag_ohm": [...],
+    "phase_deg": [...]
+  },
+  "nyquist": {
+    "re_ohm": [...],
+    "im_ohm": [...]
+  },
+  "params": {
+    "Rs": 0.8,
+    "Q": 0.45,
+    "alpha": 0.86,
+    "Rleak": 2000
+  },
+  "recipe": {
+    "geometry": {...},
+    "mxene_film": {...},
+    "assumptions": "..."
+  }
+}
+```
+
+#### POST /api/v1/filtering/optimize
+
+Optimize electrode layout to meet filtering constraints with minimal footprint.
+
+**Request:**
+```json
+{
+  "frequency_range_hz": [1, 100000],
+  "load_resistance_ohm": 33,
+  "mxene_film": {...},
+  "constraints": {
+    "max_area_mm2": 4.0,
+    "min_spacing_um": 5,
+    "targets": {
+      "phase_deg_120hz": -85,
+      "C_min_mf_cm2_120hz": 10,
+      "Z_max_ohm_120hz": 2.0
+    }
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "solutions": [
+    {
+      "geometry": {...},
+      "kpis": {...},
+      "params": {...},
+      "bode": {...},
+      "nyquist": {...}
+    }
+  ],
+  "num_feasible": 15,
+  "computation_time_s": 2.3
+}
+```
+
+#### POST /api/v1/filtering/fit
+
+Fit circuit parameters from measured Bode data (CSV format).
+
+**CSV Format:**
+```csv
+freq_hz,mag_ohm,phase_deg
+1,125.3,-82.1
+10,42.7,-84.5
+100,8.2,-86.3
+...
+```
+
+**Request:**
+```json
+{
+  "digitized_bode_csv_path": "/path/to/data.csv",
+  "electrolyte": "PVA/H2SO4",
+  "process": "photolithography",
+  "fit_rleak": false
+}
+```
+
+**Response:**
+```json
+{
+  "status": "success",
+  "params": {
+    "Rs": 0.85,
+    "Q": 0.42,
+    "alpha": 0.87,
+    "Rleak": 1e9
+  },
+  "calibration_key": "PVA/H2SO4_photolithography"
+}
+```
+
+#### GET /api/v1/filtering/presets
+
+Get preset configurations (load resistances, geometry bounds, process templates).
+
+### Web Interface
+
+Access the filtering interface at `/filtering`.
+
+**Features:**
+- Left panel: Geometry and film property inputs with presets
+- KPI header: Real-time display of all 7 KPIs
+- Bode plot: |Z| and phase vs frequency with markers at 50/60/120 Hz
+- Nyquist plot: Complex impedance plane
+- Layout optimizer: Multi-objective solver with Pareto table
+- CSV import: Fit parameters from measured data
+- Recipe export: JSON download of optimized design
+
+### Design Guidelines
+
+**For AC-Line Filtering (50/60 Hz):**
+1. Target phase @ 120 Hz: -85° to -88° (closer to -90° is better)
+2. Minimize impedance @ 120 Hz: < 2 Ω preferred
+3. Maximize areal capacitance: > 10 mF/cm² for compact designs
+4. Attenuation @ 60 Hz: < -10 dB for effective filtering
+
+**Geometry Optimization:**
+- Increase overlap length → higher capacitance, larger area
+- Decrease finger spacing → higher capacitance, harder fabrication
+- Increase number of fingers → higher capacitance, larger area
+- Optimize thickness: 150-300 nm balances performance and transparency
+
+**Material Selection:**
+- Lower porosity (15-25%) → higher α, better capacitive behavior
+- Lower sheet resistance (5-15 Ω/sq) → lower Rs, better filtering
+- PVA/H₂SO₄ gel electrolyte → good performance, easy processing
+- Photolithography → finest features (2 μm), best performance
+
+### Performance Targets
+
+- **Prediction latency**: < 150 ms for 300 frequency points
+- **Optimization**: 60 population × 40 generations, returns top-5 solutions
+- **Plot decimation**: ≤ 512 points per curve for fast rendering
+- **Accuracy**: Phase within ±5° at 120 Hz, |Z| within ±10% (10-1000 Hz)
+
+### Acceptance Criteria
+
+✓ **Numerics**: Default geometry achieves phase ≤ -80° @ 120 Hz and attenuation ≤ -6 dB @ 60 Hz  
+✓ **Solver**: Returns ≥3 feasible Pareto designs under constraints  
+✓ **Fit**: Reproduces φ within ±5° @ 120 Hz and |Z| within ±10% (10-1k Hz)  
+✓ **UI**: KPIs visible, Bode/Nyquist interactive, CSV import works, recipe export works
+
+### Example Use Cases
+
+**1. Design for 33 Ω Load (Typical LED Driver)**
+```python
+# Target: Phase ≤ -85° @ 120 Hz, Area < 4 mm²
+geometry = {
+    "finger_width_um": 8,
+    "finger_spacing_um": 8,
+    "finger_length_um": 2000,
+    "num_fingers_per_electrode": 50,
+    "overlap_length_um": 1800,
+    "thickness_nm": 200
+}
+# Expected: Phase ~ -86°, C ~ 12 mF/cm², Area ~ 3.2 mm²
+```
+
+**2. Optimize for Minimal Footprint**
+```python
+# Constraints: Phase ≤ -80°, C ≥ 10 mF/cm², Area ≤ 4 mm²
+# Solver will explore finger width, spacing, length, count
+# Returns 5 Pareto-optimal solutions sorted by area
+```
+
+**3. Calibrate from Measured Data**
+```python
+# Upload CSV with measured Bode data
+# Fit Rs, Q, α to match experimental curves
+# Store calibration factors for future predictions
+```
+
+### Database Schema
+
+**filtering_models** table:
+- Stores fitted circuit parameters and calibration factors
+- Keyed by (electrolyte, process) for reuse
+
+**filtering_runs** table:
+- Logs all prediction/optimization runs
+- Stores input parameters, KPIs, and results for analysis
+
+### References
+
+- CPE model: Brug et al., J. Electroanal. Chem. 176, 275 (1984)
+- MXene MSCs: Kurra et al., Nano Energy 13, 500 (2015)
+- AC-line filtering: Shao et al., Nat. Commun. 4, 2381 (2013)
