@@ -33,21 +33,37 @@ FastAPI + SQLAlchemy + PostgreSQL + scikit-learn/XGBoost
 ### Prerequisites
 
 - Python 3.10+
-- PostgreSQL 15+
+- PostgreSQL 15+ (or Docker)
 - Poetry
 
-### 1. Clone and Install
+### Option 1: One-Command Start (Easiest)
 
 ```bash
-# Clone repository
-git clone <repository-url>
-cd mxmap-x-backend
+# Start everything with one command
+./start_ui.sh
 
-# Install dependencies
+# Then open your browser to:
+# http://localhost:8000
+```
+
+### Option 2: Manual Setup
+
+```bash
+# 1. Install dependencies
 poetry install
 
-# Activate virtual environment
-poetry shell
+# 2. Start database
+docker-compose up -d db
+
+# 3. Generate data and seed database
+poetry run python scripts/generate_synthetic_data.py
+poetry run python scripts/seed_db.py
+
+# 4. Start server
+poetry run uvicorn app.main:app --reload
+
+# 5. Open browser
+open http://localhost:8000
 ```
 
 ### 2. Configure Environment
@@ -94,8 +110,14 @@ uvicorn app.main:app --reload
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-### 7. Access API Documentation
+### 7. Access the Application
 
+**Web Interface (UI):**
+- **Main Interface**: http://localhost:8000/
+- **Optimization**: http://localhost:8000/optimize
+- **Exploration**: http://localhost:8000/explore
+
+**API Documentation:**
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
 - **OpenAPI JSON**: http://localhost:8000/openapi.json

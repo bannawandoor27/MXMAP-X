@@ -109,11 +109,11 @@ class MultiObjectiveOptimizer:
         """
         population = []
         
-        # Define design space
-        mxene_types = list(MXeneType)
-        terminations = list(Termination)
-        electrolytes = list(Electrolyte)
-        deposition_methods = list(DepositionMethod)
+        # Define design space with actual enum values
+        mxene_types = [e.value for e in MXeneType]
+        terminations = [e.value for e in Termination]
+        electrolytes = [e.value for e in Electrolyte]
+        deposition_methods = [e.value for e in DepositionMethod]
         
         # Apply constraints
         thickness_min = constraints.get("thickness_min", 1.0) if constraints else 1.0

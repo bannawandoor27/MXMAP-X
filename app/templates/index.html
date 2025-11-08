@@ -9,7 +9,7 @@
             <p class="mt-2 text-gray-600">Design and predict supercapacitor performance with AI-powered uncertainty quantification</p>
         </div>
         <div class="flex space-x-2">
-            <button @click="showComparison = !showComparison" 
+            <button @click="toggleComparison()" 
                     class="px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition flex items-center">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
@@ -216,12 +216,19 @@
                 </div>
                 
                 <div x-show="result" x-cloak class="space-y-4 fade-in">
-                    <!-- Capacitance -->
+                    <!-- Capacitance with Uncertainty Bar -->
                     <div class="border-l-4 border-blue-500 pl-4">
                         <div class="text-sm text-gray-600">Areal Capacitance</div>
                         <div class="text-2xl font-bold text-gray-900" x-text="result?.areal_capacitance?.value + ' mF/cm²'"></div>
-                        <div class="text-xs text-gray-500">
+                        <div class="text-xs text-gray-500 mb-2">
                             95% CI: <span x-text="result?.areal_capacitance?.lower_ci"></span> - <span x-text="result?.areal_capacitance?.upper_ci"></span>
+                        </div>
+                        <!-- Uncertainty Visualization -->
+                        <div class="relative h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div class="absolute h-full bg-blue-300 rounded-full transition-all duration-500"
+                                 :style="`left: ${getUncertaintyPosition(result?.areal_capacitance, 0, 1000).left}%; width: ${getUncertaintyPosition(result?.areal_capacitance, 0, 1000).width}%`"></div>
+                            <div class="absolute h-full w-1 bg-blue-600"
+                                 :style="`left: ${getValuePosition(result?.areal_capacitance?.value, 0, 1000)}%`"></div>
                         </div>
                         <div class="mt-1">
                             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
@@ -283,6 +290,165 @@
                         <div>Model: <span x-text="result?.model_version"></span></div>
                         <div>Prediction time: <span x-text="result?.prediction_time_ms?.toFixed(1)"></span> ms</div>
                     </div>
+                    
+                    <!-- Performance Radar Chart -->
+                    <div class="pt-4 border-t">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-sm font-semibold text-gray-900">Performance Profile</h3>
+                            <button @click="exportChart('radarChart')" class="text-xs text-purple-600 hover:text-purple-700">
+                                Export PNG
+                            </button>
+                        </div>
+                        <div id="radarChart" style="height: 250px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Comparison Table Modal -->
+    <div x-show="showComparison" x-cloak 
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+         @click.self="showComparison = false">
+        <div class="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden fade-in">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-900">Prediction Comparison</h2>
+                <button @click="showComparison = false" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-auto max-h-[calc(90vh-120px)]">
+                <div x-show="savedPredictions.length === 0" class="text-center py-12 text-gray-400">
+                    <p>No predictions saved for comparison yet.</p>
+                    <p class="text-sm mt-2">Make predictions and click "Save for Comparison" to add them here.</p>
+                </div>
+                
+                <div x-show="savedPredictions.length > 0" class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50">
+                                    Parameter
+                                </th>
+                                <template x-for="(pred, index) in savedPredictions" :key="index">
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <div class="flex items-center justify-between">
+                                            <span>Design <span x-text="index + 1"></span></span>
+                                            <button @click="removePrediction(index)" class="text-red-500 hover:text-red-700">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </th>
+                                </template>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <!-- Composition -->
+                            <tr class="bg-gray-50">
+                                <td colspan="100" class="px-4 py-2 text-sm font-semibold text-gray-700">Composition</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2 text-sm text-gray-600 sticky left-0 bg-white">MXene Type</td>
+                                <template x-for="pred in savedPredictions">
+                                    <td class="px-4 py-2 text-sm text-gray-900" x-text="pred.form.mxene_type"></td>
+                                </template>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2 text-sm text-gray-600 sticky left-0 bg-white">Electrolyte</td>
+                                <template x-for="pred in savedPredictions">
+                                    <td class="px-4 py-2 text-sm text-gray-900" x-text="pred.form.electrolyte"></td>
+                                </template>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2 text-sm text-gray-600 sticky left-0 bg-white">Thickness (μm)</td>
+                                <template x-for="pred in savedPredictions">
+                                    <td class="px-4 py-2 text-sm text-gray-900" x-text="pred.form.thickness_um"></td>
+                                </template>
+                            </tr>
+                            
+                            <!-- Performance -->
+                            <tr class="bg-gray-50">
+                                <td colspan="100" class="px-4 py-2 text-sm font-semibold text-gray-700">Predicted Performance</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2 text-sm text-gray-600 sticky left-0 bg-white">Capacitance (mF/cm²)</td>
+                                <template x-for="pred in savedPredictions">
+                                    <td class="px-4 py-2 text-sm">
+                                        <div class="font-semibold text-gray-900" x-text="pred.result.areal_capacitance.value"></div>
+                                        <div class="text-xs text-gray-500" x-text="`±${((pred.result.areal_capacitance.upper_ci - pred.result.areal_capacitance.lower_ci) / 2).toFixed(1)}`"></div>
+                                    </td>
+                                </template>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2 text-sm text-gray-600 sticky left-0 bg-white">ESR (Ω)</td>
+                                <template x-for="pred in savedPredictions">
+                                    <td class="px-4 py-2 text-sm">
+                                        <div class="font-semibold text-gray-900" x-text="pred.result.esr.value"></div>
+                                        <div class="text-xs text-gray-500" x-text="`±${((pred.result.esr.upper_ci - pred.result.esr.lower_ci) / 2).toFixed(2)}`"></div>
+                                    </td>
+                                </template>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2 text-sm text-gray-600 sticky left-0 bg-white">Rate Capability (%)</td>
+                                <template x-for="pred in savedPredictions">
+                                    <td class="px-4 py-2 text-sm">
+                                        <div class="font-semibold text-gray-900" x-text="pred.result.rate_capability.value"></div>
+                                        <div class="text-xs text-gray-500" x-text="`±${((pred.result.rate_capability.upper_ci - pred.result.rate_capability.lower_ci) / 2).toFixed(1)}`"></div>
+                                    </td>
+                                </template>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2 text-sm text-gray-600 sticky left-0 bg-white">Cycle Life (cycles)</td>
+                                <template x-for="pred in savedPredictions">
+                                    <td class="px-4 py-2 text-sm">
+                                        <div class="font-semibold text-gray-900" x-text="pred.result.cycle_life.value.toLocaleString()"></div>
+                                        <div class="text-xs text-gray-500" x-text="`±${(((pred.result.cycle_life.upper_ci - pred.result.cycle_life.lower_ci) / 2)).toLocaleString()}`"></div>
+                                    </td>
+                                </template>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2 text-sm text-gray-600 sticky left-0 bg-white">Confidence</td>
+                                <template x-for="pred in savedPredictions">
+                                    <td class="px-4 py-2 text-sm">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium capitalize"
+                                              :class="{
+                                                  'bg-green-100 text-green-800': pred.result.overall_confidence === 'high',
+                                                  'bg-yellow-100 text-yellow-800': pred.result.overall_confidence === 'medium',
+                                                  'bg-red-100 text-red-800': pred.result.overall_confidence === 'low'
+                                              }"
+                                              x-text="pred.result.overall_confidence"></span>
+                                    </td>
+                                </template>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Performance Comparison Chart -->
+                <div x-show="savedPredictions.length > 1" x-cloak class="mt-6 bg-gray-50 rounded-lg p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-lg font-semibold text-gray-900">Performance Comparison</h3>
+                        <button @click="exportChart('comparisonChart')" class="text-sm text-purple-600 hover:text-purple-700">
+                            Export Chart
+                        </button>
+                    </div>
+                    <div id="comparisonChart" style="width: 100%; height: 400px;"></div>
+                </div>
+                
+                <div x-show="savedPredictions.length > 0" class="mt-6 flex justify-end space-x-2">
+                    <button @click="clearComparisons()" 
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition">
+                        Clear All
+                    </button>
+                    <button @click="exportComparison()" 
+                            class="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md transition">
+                        Export as CSV
+                    </button>
                 </div>
             </div>
         </div>
@@ -294,13 +460,17 @@
         return {
             loading: false,
             showAdvanced: false,
+            autoPredict: false,
+            showComparison: false,
+            savedPredictions: [],
+            debounceTimer: null,
             form: {
                 mxene_type: 'Ti3C2Tx',
                 terminations: 'O',
                 electrolyte: 'H2SO4',
                 thickness_um: 5.0,
                 deposition_method: 'vacuum_filtration',
-                electrolyte_concentration: null,
+                electrolyte_concentration: 1.0,
                 annealing_temp_c: null,
                 annealing_time_min: null,
                 interlayer_spacing_nm: null,
@@ -310,6 +480,16 @@
                 sheet_resistance_ohm_sq: null
             },
             result: null,
+            
+            handleFormChange() {
+                if (!this.autoPredict) return;
+                
+                // Debounce auto-predict
+                clearTimeout(this.debounceTimer);
+                this.debounceTimer = setTimeout(() => {
+                    this.predict();
+                }, 800);
+            },
             
             async predict() {
                 this.loading = true;
@@ -321,11 +501,149 @@
                     
                     this.result = await this.apiCall('POST', '/predict', data);
                     this.showToast('Prediction completed successfully!', 'success');
+                    
+                    // Render radar chart
+                    this.$nextTick(() => this.renderRadarChart());
                 } catch (error) {
                     console.error('Prediction failed:', error);
                 } finally {
                     this.loading = false;
                 }
+            },
+            
+            renderRadarChart() {
+                if (!this.result) return;
+                
+                // Normalize values to 0-100 scale for radar chart
+                const normalizeCapacitance = (val) => Math.min((val / 1000) * 100, 100);
+                const normalizeESR = (val) => Math.max(100 - (val / 10) * 100, 0);
+                const normalizeRate = (val) => val;
+                const normalizeCycle = (val) => Math.min((val / 20000) * 100, 100);
+                
+                const data = [{
+                    type: 'scatterpolar',
+                    r: [
+                        normalizeCapacitance(this.result.areal_capacitance.value),
+                        normalizeESR(this.result.esr.value),
+                        normalizeRate(this.result.rate_capability.value),
+                        normalizeCycle(this.result.cycle_life.value)
+                    ],
+                    theta: ['Capacitance', 'ESR (inv)', 'Rate Cap.', 'Cycle Life'],
+                    fill: 'toself',
+                    fillcolor: 'rgba(102, 126, 234, 0.3)',
+                    line: {
+                        color: 'rgb(102, 126, 234)',
+                        width: 2
+                    },
+                    marker: {
+                        size: 8,
+                        color: 'rgb(102, 126, 234)'
+                    }
+                }];
+                
+                const layout = {
+                    polar: {
+                        radialaxis: {
+                            visible: true,
+                            range: [0, 100]
+                        }
+                    },
+                    showlegend: false,
+                    margin: { t: 20, b: 20, l: 40, r: 40 },
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    plot_bgcolor: 'rgba(0,0,0,0)'
+                };
+                
+                const config = {
+                    responsive: true,
+                    displayModeBar: false
+                };
+                
+                Plotly.newPlot('radarChart', data, layout, config);
+            },
+            
+            async exportChart(elementId) {
+                const element = document.getElementById(elementId);
+                if (!element) return;
+                
+                try {
+                    const canvas = await html2canvas(element);
+                    const link = document.createElement('a');
+                    link.download = `${elementId}-${new Date().toISOString().split('T')[0]}.png`;
+                    link.href = canvas.toDataURL();
+                    link.click();
+                    this.showToast('Chart exported!', 'success');
+                } catch (error) {
+                    console.error('Export failed:', error);
+                    this.showToast('Export failed', 'error');
+                }
+            },
+            
+            toggleComparison() {
+                this.showComparison = !this.showComparison;
+                if (this.showComparison && this.savedPredictions.length > 1) {
+                    this.$nextTick(() => this.renderComparisonChart());
+                }
+            },
+            
+            saveForComparison() {
+                if (!this.result) return;
+                
+                this.savedPredictions.push({
+                    form: JSON.parse(JSON.stringify(this.form)),
+                    result: JSON.parse(JSON.stringify(this.result)),
+                    timestamp: new Date().toISOString()
+                });
+                
+                this.showToast(`Saved as Design ${this.savedPredictions.length}`, 'success');
+                
+                // Update comparison chart if modal is open
+                if (this.showComparison && this.savedPredictions.length > 1) {
+                    this.$nextTick(() => this.renderComparisonChart());
+                }
+            },
+            
+            removePrediction(index) {
+                this.savedPredictions.splice(index, 1);
+                this.showToast('Prediction removed', 'success');
+            },
+            
+            clearComparisons() {
+                if (confirm('Clear all saved predictions?')) {
+                    this.savedPredictions = [];
+                    this.showToast('All predictions cleared', 'success');
+                }
+            },
+            
+            exportComparison() {
+                if (this.savedPredictions.length === 0) return;
+                
+                // Create CSV content
+                let csv = 'Parameter,';
+                csv += this.savedPredictions.map((_, i) => `Design ${i + 1}`).join(',') + '\n';
+                
+                // Add composition
+                csv += 'MXene Type,' + this.savedPredictions.map(p => p.form.mxene_type).join(',') + '\n';
+                csv += 'Electrolyte,' + this.savedPredictions.map(p => p.form.electrolyte).join(',') + '\n';
+                csv += 'Thickness (μm),' + this.savedPredictions.map(p => p.form.thickness_um).join(',') + '\n';
+                
+                // Add performance
+                csv += 'Capacitance (mF/cm²),' + this.savedPredictions.map(p => p.result.areal_capacitance.value).join(',') + '\n';
+                csv += 'ESR (Ω),' + this.savedPredictions.map(p => p.result.esr.value).join(',') + '\n';
+                csv += 'Rate Capability (%),' + this.savedPredictions.map(p => p.result.rate_capability.value).join(',') + '\n';
+                csv += 'Cycle Life (cycles),' + this.savedPredictions.map(p => p.result.cycle_life.value).join(',') + '\n';
+                csv += 'Confidence,' + this.savedPredictions.map(p => p.result.overall_confidence).join(',') + '\n';
+                
+                // Download
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `mxmap-comparison-${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+                
+                this.showToast('Comparison exported!', 'success');
             },
             
             loadExample() {
@@ -346,6 +664,126 @@
                 };
                 this.showAdvanced = true;
                 this.showToast('Example loaded', 'success');
+            },
+            
+            clearForm() {
+                this.form = {
+                    mxene_type: 'Ti3C2Tx',
+                    terminations: 'O',
+                    electrolyte: 'H2SO4',
+                    thickness_um: 5.0,
+                    deposition_method: 'vacuum_filtration',
+                    electrolyte_concentration: 1.0,
+                    annealing_temp_c: null,
+                    annealing_time_min: null,
+                    interlayer_spacing_nm: null,
+                    specific_surface_area_m2g: null,
+                    pore_volume_cm3g: null,
+                    optical_transmittance: null,
+                    sheet_resistance_ohm_sq: null
+                };
+                this.result = null;
+                this.showAdvanced = false;
+            },
+            
+            getUncertaintyPosition(interval, min, max) {
+                if (!interval) return { left: 0, width: 0 };
+                const range = max - min;
+                const left = ((interval.lower_ci - min) / range) * 100;
+                const width = ((interval.upper_ci - interval.lower_ci) / range) * 100;
+                return { left: Math.max(0, left), width: Math.min(100, width) };
+            },
+            
+            getValuePosition(value, min, max) {
+                if (!value) return 0;
+                return ((value - min) / (max - min)) * 100;
+            },
+            
+            renderComparisonChart() {
+                if (this.savedPredictions.length < 2) return;
+                
+                const metrics = ['areal_capacitance', 'esr', 'rate_capability', 'cycle_life'];
+                const metricNames = {
+                    'areal_capacitance': 'Capacitance (mF/cm²)',
+                    'esr': 'ESR (Ω)',
+                    'rate_capability': 'Rate Capability (%)',
+                    'cycle_life': 'Cycle Life (cycles)'
+                };
+                
+                const traces = metrics.map((metric, idx) => {
+                    const values = this.savedPredictions.map(p => p.result[metric].value);
+                    const lowerErrors = this.savedPredictions.map(p => p.result[metric].value - p.result[metric].lower_ci);
+                    const upperErrors = this.savedPredictions.map(p => p.result[metric].upper_ci - p.result[metric].value);
+                    
+                    const colors = ['#667eea', '#48bb78', '#ed8936', '#f56565'];
+                    
+                    return {
+                        x: this.savedPredictions.map((_, i) => `Design ${i + 1}`),
+                        y: values,
+                        error_y: {
+                            type: 'data',
+                            symmetric: false,
+                            array: upperErrors,
+                            arrayminus: lowerErrors,
+                            visible: true,
+                            thickness: 2,
+                            width: 4,
+                            color: colors[idx]
+                        },
+                        type: 'scatter',
+                        mode: 'markers+lines',
+                        name: metricNames[metric],
+                        yaxis: metric === 'cycle_life' ? 'y2' : 'y',
+                        marker: {
+                            size: 10,
+                            color: colors[idx],
+                            line: { width: 2, color: 'white' }
+                        },
+                        line: {
+                            color: colors[idx],
+                            width: 2
+                        }
+                    };
+                });
+                
+                const layout = {
+                    title: 'Performance Comparison with Uncertainty',
+                    xaxis: { title: 'Design' },
+                    yaxis: { 
+                        title: 'Capacitance, ESR, Rate Capability',
+                        side: 'left'
+                    },
+                    yaxis2: {
+                        title: 'Cycle Life (cycles)',
+                        side: 'right',
+                        overlaying: 'y'
+                    },
+                    hovermode: 'x unified',
+                    plot_bgcolor: '#f9fafb',
+                    paper_bgcolor: 'white',
+                    margin: { t: 50, b: 50, l: 60, r: 60 },
+                    showlegend: true,
+                    legend: {
+                        x: 0.5,
+                        y: -0.2,
+                        xanchor: 'center',
+                        orientation: 'h'
+                    }
+                };
+                
+                const config = {
+                    responsive: true,
+                    displayModeBar: true,
+                    toImageButtonOptions: {
+                        format: 'png',
+                        filename: 'performance_comparison',
+                        height: 600,
+                        width: 1000,
+                        scale: 2
+                    }
+                };
+                
+                Plotly.newPlot('comparisonChart', traces, layout, config);
             }
         }
     }

@@ -14,9 +14,10 @@ RUN pip install poetry==1.7.1
 # Copy dependency files
 COPY pyproject.toml poetry.lock* ./
 
-# Install dependencies
+# Install dependencies (including asyncpg)
 RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi --no-root
+    && poetry install --no-interaction --no-ansi --no-root \
+    && pip install asyncpg
 
 # Copy application code
 COPY . .

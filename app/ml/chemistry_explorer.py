@@ -2,7 +2,7 @@
 
 import numpy as np
 from typing import Any
-from sklearn.manifold import UMAP
+from umap import UMAP
 from sklearn.preprocessing import StandardScaler
 import pandas as pd
 

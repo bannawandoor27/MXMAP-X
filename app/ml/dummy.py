@@ -27,6 +27,10 @@ class DummyPredictor(BasePredictor):
         """Initialize dummy predictor."""
         super().__init__(model_version, config or {})
         self.rng = np.random.default_rng(42)  # Reproducible randomness
+        
+        # Add feature engineer for chemistry explorer compatibility
+        from app.ml.feature_engineering import FeatureEngineer
+        self.feature_engineer = FeatureEngineer()
 
     async def predict(self, request: PredictionRequest) -> PredictionResult:
         """

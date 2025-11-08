@@ -73,7 +73,7 @@
                 </div>
                 
                 <div x-show="mapData" x-cloak class="fade-in">
-                    <canvas id="chemistryMap" width="800" height="600"></canvas>
+                    <div id="chemistryMap" style="width: 100%; height: 600px;"></div>
                 </div>
                 
                 <!-- Selected Point Info -->
@@ -139,67 +139,85 @@
             },
             
             renderChart() {
-                const canvas = document.getElementById('chemistryMap');
-                if (!canvas || !this.mapData) return;
+                if (!this.mapData) return;
                 
-                const ctx = canvas.getContext('2d');
-                
-                // Destroy existing chart
-                if (this.chart) {
-                    this.chart.destroy();
-                }
-                
-                // Prepare data
                 const devices = this.mapData.devices;
-                const data = devices.map(d => ({
-                    x: d.embedding.x,
-                    y: d.embedding.y,
-                    value: d.predictions[this.colorBy],
-                    device: d
-                }));
                 
-                // Create scatter plot
-                this.chart = new Chart(ctx, {
+                // Prepare data for Plotly
+                const x = devices.map(d => d.embedding.x);
+                const y = devices.map(d => d.embedding.y);
+                const colors = devices.map(d => d.predictions[this.colorBy]);
+                const text = devices.map(d => 
+                    `${d.composition.mxene_type}<br>` +
+                    `${d.composition.electrolyte}<br>` +
+                    `Cap: ${d.predictions.capacitance.toFixed(1)} mF/cm²<br>` +
+                    `ESR: ${d.predictions.esr.toFixed(2)} Ω`
+                );
+                
+                const trace = {
+                    x: x,
+                    y: y,
+                    mode: 'markers',
                     type: 'scatter',
-                    data: {
-                        datasets: [{
-                            label: 'Devices',
-                            data: data,
-                            backgroundColor: data.map(d => this.getColor(d.value)),
-                            pointRadius: 6,
-                            pointHoverRadius: 8
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: (context) => {
-                                        const device = context.raw.device;
-                                        return [
-                                            `${device.composition.mxene_type}`,
-                                            `Capacitance: ${device.predictions.capacitance.toFixed(1)} mF/cm²`,
-                                            `ESR: ${device.predictions.esr.toFixed(2)} Ω`
-                                        ];
-                                    }
-                                }
-                            }
+                    text: text,
+                    hovertemplate: '%{text}<extra></extra>',
+                    marker: {
+                        size: 10,
+                        color: colors,
+                        colorscale: 'Viridis',
+                        showscale: true,
+                        colorbar: {
+                            title: this.getColorBarTitle(),
+                            thickness: 15,
+                            len: 0.7
                         },
-                        scales: {
-                            x: { title: { display: true, text: 'UMAP Dimension 1' } },
-                            y: { title: { display: true, text: 'UMAP Dimension 2' } }
-                        },
-                        onClick: (event, elements) => {
-                            if (elements.length > 0) {
-                                const index = elements[0].index;
-                                this.selectedPoint = devices[index];
-                            }
+                        line: {
+                            color: 'white',
+                            width: 1
                         }
                     }
+                };
+                
+                const layout = {
+                    title: 'MXene Chemistry Space (UMAP)',
+                    xaxis: { title: 'UMAP Dimension 1', zeroline: false },
+                    yaxis: { title: 'UMAP Dimension 2', zeroline: false },
+                    hovermode: 'closest',
+                    plot_bgcolor: '#f9fafb',
+                    paper_bgcolor: 'white',
+                    margin: { t: 50, b: 50, l: 50, r: 50 }
+                };
+                
+                const config = {
+                    responsive: true,
+                    displayModeBar: true,
+                    modeBarButtonsToRemove: ['lasso2d', 'select2d'],
+                    toImageButtonOptions: {
+                        format: 'png',
+                        filename: 'chemistry_map',
+                        height: 800,
+                        width: 1200,
+                        scale: 2
+                    }
+                };
+                
+                Plotly.newPlot('chemistryMap', [trace], layout, config);
+                
+                // Add click handler
+                document.getElementById('chemistryMap').on('plotly_click', (data) => {
+                    const pointIndex = data.points[0].pointIndex;
+                    this.selectedPoint = devices[pointIndex];
                 });
+            },
+            
+            getColorBarTitle() {
+                const titles = {
+                    'capacitance': 'Capacitance<br>(mF/cm²)',
+                    'esr': 'ESR (Ω)',
+                    'rate_capability': 'Rate Cap.<br>(%)',
+                    'cycle_life': 'Cycle Life<br>(cycles)'
+                };
+                return titles[this.colorBy] || this.colorBy;
             },
             
             getColor(value) {

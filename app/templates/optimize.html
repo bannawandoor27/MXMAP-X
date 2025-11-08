@@ -105,6 +105,12 @@
 
         <!-- Results Panel -->
         <div>
+            <!-- Pareto Frontier Visualization -->
+            <div x-show="results" x-cloak class="bg-white shadow rounded-lg p-6 mb-6 fade-in">
+                <h2 class="text-xl font-semibold mb-4">Pareto Frontier</h2>
+                <div id="paretoChart" style="width: 100%; height: 400px;"></div>
+            </div>
+            
             <div class="bg-white shadow rounded-lg p-6">
                 <h2 class="text-xl font-semibold mb-4">Pareto-Optimal Solutions</h2>
                 
@@ -211,11 +217,102 @@
                     
                     this.results = await this.apiCall('POST', '/optimize', data);
                     this.showToast(`Found ${this.results.pareto_size} optimal solutions!`, 'success');
+                    
+                    // Render Pareto frontier
+                    this.$nextTick(() => this.renderParetoFrontier());
                 } catch (error) {
                     console.error('Optimization failed:', error);
                 } finally {
                     this.loading = false;
                 }
+            },
+            
+            renderParetoFrontier() {
+                if (!this.results || this.results.pareto_optimal.length === 0) return;
+                
+                const solutions = this.results.pareto_optimal;
+                
+                // Get first two objectives for 2D plot
+                const obj1 = this.objectives[0].metric;
+                const obj2 = this.objectives[1]?.metric || 'esr';
+                
+                const x = solutions.map(s => s.predictions[obj1]);
+                const y = solutions.map(s => s.predictions[obj2]);
+                const text = solutions.map((s, i) => 
+                    `Solution ${i + 1}<br>` +
+                    `${obj1}: ${s.predictions[obj1].toFixed(2)}<br>` +
+                    `${obj2}: ${s.predictions[obj2].toFixed(2)}<br>` +
+                    `Rank: ${s.rank}`
+                );
+                
+                const trace = {
+                    x: x,
+                    y: y,
+                    mode: 'markers+lines',
+                    type: 'scatter',
+                    text: text,
+                    hovertemplate: '%{text}<extra></extra>',
+                    marker: {
+                        size: 12,
+                        color: solutions.map(s => s.crowding_distance),
+                        colorscale: 'Viridis',
+                        showscale: true,
+                        colorbar: {
+                            title: 'Crowding<br>Distance',
+                            thickness: 15,
+                            len: 0.5
+                        },
+                        line: {
+                            color: 'white',
+                            width: 2
+                        }
+                    },
+                    line: {
+                        color: 'rgba(102, 126, 234, 0.3)',
+                        width: 1,
+                        dash: 'dot'
+                    }
+                };
+                
+                const layout = {
+                    title: 'Pareto Frontier',
+                    xaxis: { 
+                        title: this.formatMetricName(obj1),
+                        zeroline: false 
+                    },
+                    yaxis: { 
+                        title: this.formatMetricName(obj2),
+                        zeroline: false 
+                    },
+                    hovermode: 'closest',
+                    plot_bgcolor: '#f9fafb',
+                    paper_bgcolor: 'white',
+                    margin: { t: 50, b: 50, l: 60, r: 50 }
+                };
+                
+                const config = {
+                    responsive: true,
+                    displayModeBar: true,
+                    toImageButtonOptions: {
+                        format: 'png',
+                        filename: 'pareto_frontier',
+                        height: 600,
+                        width: 800,
+                        scale: 2
+                    }
+                };
+                
+                Plotly.newPlot('paretoChart', [trace], layout, config);
+            },
+            
+            formatMetricName(metric) {
+                const names = {
+                    'capacitance': 'Areal Capacitance (mF/cm²)',
+                    'esr': 'ESR (Ω)',
+                    'rate_capability': 'Rate Capability (%)',
+                    'cycle_life': 'Cycle Life (cycles)'
+                };
+                return names[metric] || metric;
             }
         }
     }
