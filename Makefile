@@ -58,3 +58,12 @@ migrate:
 
 migrate-create:
 	poetry run alembic revision --autogenerate -m "$(msg)"
+
+train:
+	poetry run python scripts/train_model.py
+
+evaluate:
+	poetry run python scripts/evaluate_model.py
+
+ml-pipeline: seed train evaluate
+	@echo "✓ ML pipeline completed!"
