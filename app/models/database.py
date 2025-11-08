@@ -356,3 +356,30 @@ class TrainingMetadata(Base):
 
     def __repr__(self) -> str:
         return f"<TrainingMetadata(version={self.model_version}, active={bool(self.is_active)})>"
+
+
+class FilteringModel(Base):
+    """Fitted filtering models with calibration."""
+    __tablename__ = "filtering_models"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    electrolyte = Column(String(100), nullable=False)
+    process = Column(String(100), nullable=False)
+    Rs = Column(Float, nullable=False)
+    Q = Column(Float, nullable=False)
+    alpha = Column(Float, nullable=False)
+    Rleak = Column(Float, nullable=False)
+    calib_factors_json = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class FilteringRun(Base):
+    """Filtering prediction runs."""
+    __tablename__ = "filtering_runs"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    input_json = Column(Text, nullable=False)
+    kpis_json = Column(Text, nullable=False)
+    params_json = Column(Text, nullable=False)
+    area_mm2 = Column(Float, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)

@@ -1,0 +1,756 @@
+{% extends "base.html" %}
+
+{% block title %}Electrochromic Visualization - MXMAP-X{% endblock %}
+
+{% block extra_head %}
+<style>
+    .voltage-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 8px;
+        border-radius: 4px;
+        background: linear-gradient(to right, #3b82f6 0%, #10b981 50%, #f59e0b 100%);
+        outline: none;
+    }
+    
+    .voltage-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: white;
+        border: 3px solid #667eea;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    
+    .voltage-slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: white;
+        border: 3px solid #667eea;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    
+    #deviceCanvas {
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .color-preview {
+        width: 100%;
+        height: 200px;
+        border-radius: 8px;
+        transition: background-color 0.3s ease;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div x-data="electrochromicData()" x-init="init()" class="px-4 py-6">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Electrochromic Visualization</h1>
+        <p class="mt-2 text-gray-600">Real-time color prediction and electrochemical behavior</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Control Panel -->
+        <div class="lg:col-span-1">
+            <div class="bg-white shadow rounded-lg p-6 sticky top-6 space-y-6">
+                <!-- Voltage Control -->
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-sm font-semibold text-gray-900">Applied Voltage</label>
+                        <span class="text-2xl font-bold text-purple-600" x-text="voltage.toFixed(2) + ' V'"></span>
+                    </div>
+                    <input type="range" x-model.number="voltage" @input="updateVisualization()"
+                           min="-1.0" max="1.0" step="0.01"
+                           class="voltage-slider">
+                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>-1.0 V</span>
+                        <span>0 V</span>
+                        <span>+1.0 V</span>
+                    </div>
+                </div>
+
+
+                <!-- Animation Controls -->
+                <div class="pt-4 border-t">
+                    <h3 class="text-sm font-semibold text-gray-900 mb-3">Voltage Sweep Animation</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs text-gray-600">Sweep Range</label>
+                            <div class="flex space-x-2 mt-1">
+                                <input type="number" x-model.number="sweepMin" step="0.1"
+                                       class="w-full px-2 py-1 text-sm border rounded">
+                                <span class="text-gray-500">to</span>
+                                <input type="number" x-model.number="sweepMax" step="0.1"
+                                       class="w-full px-2 py-1 text-sm border rounded">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-600">Speed (s)</label>
+                            <input type="number" x-model.number="sweepDuration" min="1" max="10" step="0.5"
+                                   class="w-full px-2 py-1 text-sm border rounded mt-1">
+                        </div>
+                        <button @click="toggleSweep()" 
+                                class="w-full px-4 py-2 rounded-md font-medium transition"
+                                :class="isSweeping ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-purple-600 hover:bg-purple-700 text-white'">
+                            <span x-show="!isSweeping">▶️ Start Sweep</span>
+                            <span x-show="isSweeping">⏸️ Stop Sweep</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Device Configuration -->
+                <div class="pt-4 border-t">
+                    <h3 class="text-sm font-semibold text-gray-900 mb-3">Device Configuration</h3>
+                    <div class="space-y-2">
+                        <div>
+                            <label class="text-xs text-gray-600">MXene Type</label>
+                            <select x-model="deviceConfig.mxene_type" @change="updateVisualization()"
+                                    class="w-full px-2 py-1 text-sm border rounded mt-1">
+                                <option value="Ti3C2Tx">Ti₃C₂Tₓ</option>
+                                <option value="Mo2CTx">Mo₂CTₓ</option>
+                                <option value="V2CTx">V₂CTₓ</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-600">Electrolyte</label>
+                            <select x-model="deviceConfig.electrolyte" @change="updateVisualization()"
+                                    class="w-full px-2 py-1 text-sm border rounded mt-1">
+                                <option value="H2SO4">H₂SO₄</option>
+                                <option value="KOH">KOH</option>
+                                <option value="ionic_liquid">Ionic Liquid</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Color Info -->
+                <div class="pt-4 border-t">
+                    <h3 class="text-sm font-semibold text-gray-900 mb-3">Current State</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">RGB:</span>
+                            <span class="font-mono" x-text="currentColor.rgb"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Hex:</span>
+                            <span class="font-mono" x-text="currentColor.hex"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Transmittance:</span>
+                            <span x-text="(currentColor.transmittance * 100).toFixed(1) + '%'"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">State:</span>
+                            <span class="font-medium" x-text="currentColor.state"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Visualization Panel -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Color Preview -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Device Color Preview</h2>
+                <div class="color-preview" :style="`background-color: ${currentColor.hex}`"></div>
+                <div class="mt-4 grid grid-cols-3 gap-4 text-center text-sm">
+                    <div>
+                        <div class="text-gray-600">Reduced State</div>
+                        <div class="mt-2 h-12 rounded" style="background-color: #1e3a8a;"></div>
+                        <div class="text-xs text-gray-500 mt-1">-1.0 V</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-600">Neutral State</div>
+                        <div class="mt-2 h-12 rounded" style="background-color: #6b7280;"></div>
+                        <div class="text-xs text-gray-500 mt-1">0 V</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-600">Oxidized State</div>
+                        <div class="mt-2 h-12 rounded" style="background-color: #fbbf24;"></div>
+                        <div class="text-xs text-gray-500 mt-1">+1.0 V</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas Rendering -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">3D Device Visualization</h2>
+                <canvas id="deviceCanvas" width="800" height="400"></canvas>
+            </div>
+
+            <!-- CV Curve -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-gray-900">Cyclic Voltammetry (CV)</h2>
+                    <div class="flex space-x-2">
+                        <button @click="showCV = true; showGCD = false" 
+                                :class="showCV ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'"
+                                class="px-3 py-1 text-sm rounded-md transition">
+                            CV
+                        </button>
+                        <button @click="showGCD = true; showCV = false"
+                                :class="showGCD ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'"
+                                class="px-3 py-1 text-sm rounded-md transition">
+                            GCD
+                        </button>
+                    </div>
+                </div>
+                <div x-show="showCV" id="cvChart" style="width: 100%; height: 400px;"></div>
+                <div x-show="showGCD" x-cloak id="gcdChart" style="width: 100%; height: 400px;"></div>
+            </div>
+
+            <!-- Voltage History -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Voltage & Color History</h2>
+                <div id="historyChart" style="width: 100%; height: 300px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function electrochromicData() {
+        return {
+            voltage: 0,
+            deviceConfig: {
+                mxene_type: 'Ti3C2Tx',
+                electrolyte: 'H2SO4',
+                thickness_um: 5.0
+            },
+            currentColor: {
+                rgb: 'rgb(107, 114, 128)',
+                hex: '#6b7280',
+                transmittance: 0.5,
+                state: 'Neutral'
+            },
+            isSweeping: false,
+            sweepMin: -1.0,
+            sweepMax: 1.0,
+            sweepDuration: 3,
+            sweepInterval: null,
+            showCV: true,
+            showGCD: false,
+            voltageHistory: [],
+            colorHistory: [],
+            canvas: null,
+            ctx: null,
+            
+            init() {
+                this.canvas = document.getElementById('deviceCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.updateVisualization();
+                this.renderCVCurve();
+                this.renderGCDCurve();
+                this.renderHistoryChart();
+            },
+            
+            updateVisualization() {
+                // Predict color based on voltage and device config
+                this.currentColor = this.predictColor(this.voltage);
+                
+                // Update canvas rendering
+                this.renderDevice();
+                
+                // Update history
+                this.addToHistory();
+                
+                // Update history chart
+                if (this.voltageHistory.length > 1) {
+                    this.renderHistoryChart();
+                }
+            },
+            
+            predictColor(voltage) {
+                // Physics-based color prediction model
+                // MXene electrochromic behavior: reduced (blue) ↔ neutral (gray) ↔ oxidized (yellow)
+                
+                let r, g, b, transmittance, state;
+                
+                // Normalize voltage to 0-1 range
+                const normalized = (voltage + 1) / 2; // -1 to 1 → 0 to 1
+                
+                if (voltage < -0.5) {
+                    // Reduced state (blue)
+                    state = 'Reduced';
+                    r = Math.floor(30 + (107 - 30) * ((voltage + 1) / 0.5));
+                    g = Math.floor(58 + (114 - 58) * ((voltage + 1) / 0.5));
+                    b = Math.floor(138 + (128 - 138) * ((voltage + 1) / 0.5));
+                    transmittance = 0.3 + 0.2 * ((voltage + 1) / 0.5);
+                } else if (voltage > 0.5) {
+                    // Oxidized state (yellow/orange)
+                    state = 'Oxidized';
+                    const factor = (voltage - 0.5) / 0.5;
+                    r = Math.floor(107 + (251 - 107) * factor);
+                    g = Math.floor(114 + (191 - 114) * factor);
+                    b = Math.floor(128 + (36 - 128) * factor);
+                    transmittance = 0.5 + 0.3 * factor;
+                } else {
+                    // Neutral state (gray)
+                    state = 'Neutral';
+                    r = 107;
+                    g = 114;
+                    b = 128;
+                    transmittance = 0.5;
+                }
+                
+                // MXene type affects color intensity
+                if (this.deviceConfig.mxene_type === 'Mo2CTx') {
+                    r = Math.floor(r * 0.9);
+                    g = Math.floor(g * 1.1);
+                } else if (this.deviceConfig.mxene_type === 'V2CTx') {
+                    r = Math.floor(r * 1.1);
+                    b = Math.floor(b * 0.9);
+                }
+                
+                const rgb = `rgb(${r}, ${g}, ${b})`;
+                const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+                
+                return { rgb, hex, transmittance, state, r, g, b };
+            },
+
+            
+            renderDevice() {
+                if (!this.ctx) return;
+                
+                const canvas = this.canvas;
+                const ctx = this.ctx;
+                
+                // Clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw background
+                const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                gradient.addColorStop(0, '#f9fafb');
+                gradient.addColorStop(1, '#e5e7eb');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw device layers (3D perspective)
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const deviceWidth = 400;
+                const deviceHeight = 200;
+                
+                // Shadow
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                ctx.shadowBlur = 20;
+                ctx.shadowOffsetX = 10;
+                ctx.shadowOffsetY = 10;
+                
+                // Substrate (bottom layer)
+                ctx.fillStyle = '#9ca3af';
+                this.drawLayer(ctx, centerX, centerY + 40, deviceWidth, deviceHeight, 20);
+                
+                // MXene film (middle layer) - with current color
+                ctx.shadowBlur = 10;
+                ctx.fillStyle = this.currentColor.hex;
+                this.drawLayer(ctx, centerX, centerY, deviceWidth, deviceHeight, 15);
+                
+                // Add shine effect
+                const shineGradient = ctx.createLinearGradient(
+                    centerX - deviceWidth/2, centerY - deviceHeight/2,
+                    centerX + deviceWidth/2, centerY + deviceHeight/2
+                );
+                shineGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+                shineGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
+                shineGradient.addColorStop(1, 'rgba(0, 0, 0, 0.1)');
+                ctx.fillStyle = shineGradient;
+                this.drawLayer(ctx, centerX, centerY, deviceWidth, deviceHeight, 15);
+                
+                // Electrolyte layer (top, semi-transparent)
+                ctx.shadowBlur = 5;
+                ctx.fillStyle = 'rgba(100, 150, 200, 0.3)';
+                this.drawLayer(ctx, centerX, centerY - 40, deviceWidth, deviceHeight, 10);
+                
+                // Reset shadow
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
+                
+                // Draw voltage indicator
+                ctx.fillStyle = '#374151';
+                ctx.font = 'bold 24px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${this.voltage.toFixed(2)} V`, centerX, 50);
+                
+                // Draw state label
+                ctx.font = '16px sans-serif';
+                ctx.fillStyle = '#6b7280';
+                ctx.fillText(this.currentColor.state, centerX, 80);
+                
+                // Draw transmittance indicator
+                const barWidth = 200;
+                const barHeight = 20;
+                const barX = centerX - barWidth / 2;
+                const barY = canvas.height - 60;
+                
+                ctx.fillStyle = '#e5e7eb';
+                ctx.fillRect(barX, barY, barWidth, barHeight);
+                
+                ctx.fillStyle = '#667eea';
+                ctx.fillRect(barX, barY, barWidth * this.currentColor.transmittance, barHeight);
+                
+                ctx.strokeStyle = '#374151';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(barX, barY, barWidth, barHeight);
+                
+                ctx.fillStyle = '#374151';
+                ctx.font = '12px sans-serif';
+                ctx.fillText(`Transmittance: ${(this.currentColor.transmittance * 100).toFixed(1)}%`, centerX, barY - 10);
+            },
+            
+            drawLayer(ctx, x, y, width, height, depth) {
+                // Draw 3D layer with perspective
+                ctx.beginPath();
+                
+                // Top face
+                ctx.moveTo(x - width/2, y - height/2);
+                ctx.lineTo(x + width/2, y - height/2);
+                ctx.lineTo(x + width/2 + depth, y - height/2 - depth);
+                ctx.lineTo(x - width/2 + depth, y - height/2 - depth);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Front face (slightly darker)
+                const currentFill = ctx.fillStyle;
+                ctx.fillStyle = this.darkenColor(currentFill, 0.8);
+                ctx.beginPath();
+                ctx.moveTo(x - width/2, y - height/2);
+                ctx.lineTo(x + width/2, y - height/2);
+                ctx.lineTo(x + width/2, y + height/2);
+                ctx.lineTo(x - width/2, y + height/2);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Right face (darker)
+                ctx.fillStyle = this.darkenColor(currentFill, 0.6);
+                ctx.beginPath();
+                ctx.moveTo(x + width/2, y - height/2);
+                ctx.lineTo(x + width/2 + depth, y - height/2 - depth);
+                ctx.lineTo(x + width/2 + depth, y + height/2 - depth);
+                ctx.lineTo(x + width/2, y + height/2);
+                ctx.closePath();
+                ctx.fill();
+            },
+
+            
+            darkenColor(color, factor) {
+                // Parse color and darken it
+                if (color.startsWith('#')) {
+                    const r = parseInt(color.slice(1, 3), 16);
+                    const g = parseInt(color.slice(3, 5), 16);
+                    const b = parseInt(color.slice(5, 7), 16);
+                    return `rgb(${Math.floor(r * factor)}, ${Math.floor(g * factor)}, ${Math.floor(b * factor)})`;
+                } else if (color.startsWith('rgb')) {
+                    const match = color.match(/\d+/g);
+                    if (match) {
+                        return `rgb(${Math.floor(match[0] * factor)}, ${Math.floor(match[1] * factor)}, ${Math.floor(match[2] * factor)})`;
+                    }
+                }
+                return color;
+            },
+            
+            toggleSweep() {
+                if (this.isSweeping) {
+                    this.stopSweep();
+                } else {
+                    this.startSweep();
+                }
+            },
+            
+            startSweep() {
+                this.isSweeping = true;
+                const startTime = Date.now();
+                const duration = this.sweepDuration * 1000; // Convert to ms
+                const range = this.sweepMax - this.sweepMin;
+                
+                this.sweepInterval = setInterval(() => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = (elapsed % duration) / duration;
+                    
+                    // Triangle wave for forward and reverse sweep
+                    let sweepProgress;
+                    if (progress < 0.5) {
+                        sweepProgress = progress * 2; // 0 to 1
+                    } else {
+                        sweepProgress = 2 - progress * 2; // 1 to 0
+                    }
+                    
+                    this.voltage = this.sweepMin + range * sweepProgress;
+                    this.updateVisualization();
+                }, 50); // Update every 50ms
+            },
+            
+            stopSweep() {
+                this.isSweeping = false;
+                if (this.sweepInterval) {
+                    clearInterval(this.sweepInterval);
+                    this.sweepInterval = null;
+                }
+            },
+            
+            addToHistory() {
+                const timestamp = Date.now();
+                this.voltageHistory.push({ time: timestamp, voltage: this.voltage });
+                this.colorHistory.push({ 
+                    time: timestamp, 
+                    r: this.currentColor.r,
+                    g: this.currentColor.g,
+                    b: this.currentColor.b
+                });
+                
+                // Keep only last 100 points
+                if (this.voltageHistory.length > 100) {
+                    this.voltageHistory.shift();
+                    this.colorHistory.shift();
+                }
+            },
+            
+            renderCVCurve() {
+                // Generate CV curve data
+                const voltages = [];
+                const currents = [];
+                
+                // Forward sweep
+                for (let v = -1.0; v <= 1.0; v += 0.02) {
+                    voltages.push(v);
+                    currents.push(this.calculateCurrent(v, 'forward'));
+                }
+                
+                // Reverse sweep
+                for (let v = 1.0; v >= -1.0; v -= 0.02) {
+                    voltages.push(v);
+                    currents.push(this.calculateCurrent(v, 'reverse'));
+                }
+                
+                // Current voltage marker
+                const markerTrace = {
+                    x: [this.voltage],
+                    y: [this.calculateCurrent(this.voltage, 'forward')],
+                    mode: 'markers',
+                    marker: {
+                        size: 12,
+                        color: this.currentColor.hex,
+                        line: { width: 2, color: 'white' }
+                    },
+                    name: 'Current State',
+                    showlegend: false
+                };
+                
+                const trace = {
+                    x: voltages,
+                    y: currents,
+                    type: 'scatter',
+                    mode: 'lines',
+                    line: {
+                        color: '#667eea',
+                        width: 3
+                    },
+                    name: 'CV Curve'
+                };
+                
+                const layout = {
+                    title: 'Cyclic Voltammetry',
+                    xaxis: { 
+                        title: 'Potential (V vs. Ref)',
+                        zeroline: true,
+                        zerolinecolor: '#d1d5db',
+                        zerolinewidth: 2
+                    },
+                    yaxis: { 
+                        title: 'Current (mA/cm²)',
+                        zeroline: true,
+                        zerolinecolor: '#d1d5db',
+                        zerolinewidth: 2
+                    },
+                    plot_bgcolor: '#f9fafb',
+                    paper_bgcolor: 'white',
+                    margin: { t: 50, b: 50, l: 60, r: 30 }
+                };
+                
+                const config = { responsive: true, displayModeBar: false };
+                
+                Plotly.newPlot('cvChart', [trace, markerTrace], layout, config);
+            },
+
+            
+            calculateCurrent(voltage, direction) {
+                // Simplified electrochemical model for CV curve
+                // Current = capacitive + faradaic components
+                
+                const scanRate = 50; // mV/s
+                const capacitance = 300; // mF/cm²
+                
+                // Capacitive current (rectangular)
+                const capacitiveCurrent = capacitance * scanRate / 1000;
+                
+                // Faradaic current (redox peaks)
+                const peakPotential1 = -0.3;
+                const peakPotential2 = 0.4;
+                const peakWidth = 0.15;
+                const peakHeight = 50;
+                
+                const peak1 = peakHeight * Math.exp(-Math.pow((voltage - peakPotential1) / peakWidth, 2));
+                const peak2 = -peakHeight * Math.exp(-Math.pow((voltage - peakPotential2) / peakWidth, 2));
+                
+                // Direction affects sign
+                const directionFactor = direction === 'forward' ? 1 : -1;
+                
+                return directionFactor * capacitiveCurrent + peak1 + peak2;
+            },
+            
+            renderGCDCurve() {
+                // Generate GCD (Galvanostatic Charge-Discharge) curve
+                const times = [];
+                const voltages = [];
+                
+                const chargeDuration = 10; // seconds
+                const dischargeDuration = 10;
+                
+                // Charge phase
+                for (let t = 0; t <= chargeDuration; t += 0.1) {
+                    times.push(t);
+                    voltages.push(-1.0 + (2.0 * t / chargeDuration));
+                }
+                
+                // Discharge phase
+                for (let t = 0; t <= dischargeDuration; t += 0.1) {
+                    times.push(chargeDuration + t);
+                    voltages.push(1.0 - (2.0 * t / dischargeDuration));
+                }
+                
+                const trace = {
+                    x: times,
+                    y: voltages,
+                    type: 'scatter',
+                    mode: 'lines',
+                    line: {
+                        color: '#10b981',
+                        width: 3
+                    },
+                    name: 'GCD Curve'
+                };
+                
+                const layout = {
+                    title: 'Galvanostatic Charge-Discharge',
+                    xaxis: { 
+                        title: 'Time (s)',
+                        zeroline: false
+                    },
+                    yaxis: { 
+                        title: 'Potential (V)',
+                        zeroline: true,
+                        zerolinecolor: '#d1d5db',
+                        zerolinewidth: 2
+                    },
+                    plot_bgcolor: '#f9fafb',
+                    paper_bgcolor: 'white',
+                    margin: { t: 50, b: 50, l: 60, r: 30 }
+                };
+                
+                const config = { responsive: true, displayModeBar: false };
+                
+                Plotly.newPlot('gcdChart', [trace], layout, config);
+            },
+            
+            renderHistoryChart() {
+                if (this.voltageHistory.length < 2) return;
+                
+                // Normalize timestamps to start from 0
+                const startTime = this.voltageHistory[0].time;
+                const times = this.voltageHistory.map(h => (h.time - startTime) / 1000);
+                const voltages = this.voltageHistory.map(h => h.voltage);
+                
+                // Create color trace (RGB as separate lines)
+                const rValues = this.colorHistory.map(h => h.r);
+                const gValues = this.colorHistory.map(h => h.g);
+                const bValues = this.colorHistory.map(h => h.b);
+                
+                const voltageTrace = {
+                    x: times,
+                    y: voltages,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'Voltage',
+                    yaxis: 'y',
+                    line: { color: '#667eea', width: 2 }
+                };
+                
+                const rTrace = {
+                    x: times,
+                    y: rValues,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'Red',
+                    yaxis: 'y2',
+                    line: { color: '#ef4444', width: 1.5 }
+                };
+                
+                const gTrace = {
+                    x: times,
+                    y: gValues,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'Green',
+                    yaxis: 'y2',
+                    line: { color: '#10b981', width: 1.5 }
+                };
+                
+                const bTrace = {
+                    x: times,
+                    y: bValues,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'Blue',
+                    yaxis: 'y2',
+                    line: { color: '#3b82f6', width: 1.5 }
+                };
+                
+                const layout = {
+                    title: 'Voltage & Color History',
+                    xaxis: { title: 'Time (s)' },
+                    yaxis: { 
+                        title: 'Voltage (V)',
+                        side: 'left'
+                    },
+                    yaxis2: {
+                        title: 'RGB Value',
+                        side: 'right',
+                        overlaying: 'y',
+                        range: [0, 255]
+                    },
+                    plot_bgcolor: '#f9fafb',
+                    paper_bgcolor: 'white',
+                    margin: { t: 50, b: 50, l: 60, r: 60 },
+                    showlegend: true,
+                    legend: {
+                        x: 0.5,
+                        y: -0.2,
+                        xanchor: 'center',
+                        orientation: 'h'
+                    }
+                };
+                
+                const config = { responsive: true, displayModeBar: false };
+                
+                Plotly.newPlot('historyChart', [voltageTrace, rTrace, gTrace, bTrace], layout, config);
+            }
+        }
+    }
+</script>
+{% endblock %}
+

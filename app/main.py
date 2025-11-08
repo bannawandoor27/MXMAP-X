@@ -148,27 +148,9 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_PREFIX)
 
-
-# Root endpoint
-@app.get(
-    "/",
-    tags=["root"],
-    summary="API root",
-    description="Welcome endpoint with API information",
-)
-async def root() -> dict[str, str]:
-    """
-    Root endpoint.
-    
-    Returns:
-        Welcome message and API information
-    """
-    return {
-        "message": "Welcome to MXMAP-X Backend API",
-        "version": settings.VERSION,
-        "docs": "/docs",
-        "health": f"{settings.API_V1_PREFIX}/health",
-    }
+# Include web interface routes
+from app.web.routes import router as web_router
+app.include_router(web_router, tags=["web"])
 
 
 if __name__ == "__main__":

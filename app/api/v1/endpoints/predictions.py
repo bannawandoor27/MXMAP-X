@@ -8,7 +8,7 @@ from app.models.schemas import (
     BatchPredictionRequest,
     BatchPredictionResult,
 )
-from app.ml.dummy import get_predictor
+from app.ml.model_loader import get_predictor
 from app.core.exceptions import PredictionError
 
 router = APIRouter()

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MXMAP-X - MXene Supercapacitor Design{% endblock %}</title>
+    
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js for reactivity -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Plotly.js for advanced visualizations -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    
+    <!-- Axios for API calls -->
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.5/dist/axios.min.js"></script>
+    
+    <!-- html2canvas for export -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    
+    <style>
+        [x-cloak] { display: none !important; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        /* Gradient background */
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        /* Custom slider styles */
+        input[type="range"].slider {
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        input[type="range"].slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        input[type="range"].slider::-webkit-slider-thumb:hover {
+            background: #764ba2;
+            transform: scale(1.2);
+        }
+        
+        input[type="range"].slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        
+        input[type="range"].slider::-moz-range-thumb:hover {
+            background: #764ba2;
+            transform: scale(1.2);
+        }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="h-full bg-gray-50" x-data="appData()" x-init="init()">
+    <!-- Navigation -->
+    <nav class="gradient-bg shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                        <span class="ml-2 text-2xl font-bold text-white">MXMAP-X</span>
+                    </div>
+                    <div class="hidden md:ml-10 md:flex md:space-x-8">
+                        <a href="/" class="text-white hover:text-gray-200 px-3 py-2 rounded-md text-sm font-medium transition">
+                            Predict
+                        </a>
+                        <a href="/optimize" class="text-white hover:text-gray-200 px-3 py-2 rounded-md text-sm font-medium transition">
+                            Optimize
+                        </a>
+                        <a href="/explore" class="text-white hover:text-gray-200 px-3 py-2 rounded-md text-sm font-medium transition">
+                            Explore
+                        </a>
+                        <a href="/electrochromic" class="text-white hover:text-gray-200 px-3 py-2 rounded-md text-sm font-medium transition">
+                            Electrochromic
+                        </a>
+                        <a href="/filtering" class="text-white hover:text-gray-200 px-3 py-2 rounded-md text-sm font-medium transition">
+                            Filtering
+                        </a>
+                        <a href="/recipes" class="text-white hover:text-gray-200 px-3 py-2 rounded-md text-sm font-medium transition">
+                            Recipes
+                        </a>
+                        <a href="/docs" class="text-white hover:text-gray-200 px-3 py-2 rounded-md text-sm font-medium transition">
+                            API Docs
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <div class="flex items-center space-x-2 text-white text-sm">
+                        <div class="flex items-center">
+                            <div class="h-2 w-2 rounded-full mr-2" :class="health.status === 'healthy' ? 'bg-green-400' : 'bg-red-400'"></div>
+                            <span x-text="health.status || 'checking...'"></span>
+                        </div>
+                        <span class="text-gray-300">|</span>
+                        <span x-text="health.version || 'v0.1.0'"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Toast Notifications -->
+    <div x-show="toast.show" 
+         x-transition
+         class="fixed bottom-4 right-4 max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden fade-in"
+         x-cloak>
+        <div class="p-4">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg x-show="toast.type === 'success'" class="h-6 w-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <svg x-show="toast.type === 'error'" class="h-6 w-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="ml-3 w-0 flex-1 pt-0.5">
+                    <p class="text-sm font-medium text-gray-900" x-text="toast.message"></p>
+                </div>
+                <div class="ml-4 flex-shrink-0 flex">
+                    <button @click="toast.show = false" class="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500">
+                        <span class="sr-only">Close</span>
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Alpine.js Data -->
+    <script>
+        function appData() {
+            return {
+                health: {},
+                toast: {
+                    show: false,
+                    message: '',
+                    type: 'success'
+                },
+                
+                async init() {
+                    await this.checkHealth();
+                },
+                
+                async checkHealth() {
+                    try {
+                        const response = await axios.get('/api/v1/health');
+                        this.health = response.data;
+                    } catch (error) {
+                        console.error('Health check failed:', error);
+                        this.health = { status: 'error', version: 'unknown' };
+                    }
+                },
+                
+                showToast(message, type = 'success') {
+                    this.toast = { show: true, message, type };
+                    setTimeout(() => {
+                        this.toast.show = false;
+                    }, 5000);
+                },
+                
+                async apiCall(method, url, data = null) {
+                    try {
+                        const config = { method, url: `/api/v1${url}` };
+                        if (data) config.data = data;
+                        const response = await axios(config);
+                        return response.data;
+                    } catch (error) {
+                        const message = error.response?.data?.error || error.message;
+                        this.showToast(message, 'error');
+                        throw error;
+                    }
+                }
+            }
+        }
+    </script>
+    
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

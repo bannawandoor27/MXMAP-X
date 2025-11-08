@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.dependencies import get_db
 from app.models.database import TrainingMetadata
 from app.models.schemas import ModelMetrics, HealthCheckResponse
-from app.ml.dummy import get_predictor
+from app.ml.model_loader import get_predictor
 from app.config import settings
 from app.db.session import engine
 

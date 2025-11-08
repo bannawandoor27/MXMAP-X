@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+
+{% block title %}Optimize - MXMAP-X{% endblock %}
+
+{% block content %}
+<div x-data="optimizeData()" class="px-4 py-6">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Multi-Objective Optimization</h1>
+        <p class="mt-2 text-gray-600">Find Pareto-optimal designs that balance competing objectives</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Configuration Panel -->
+        <div>
+            <div class="bg-white shadow rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Optimization Objectives</h2>
+                
+                <form @submit.prevent="optimize()" class="space-y-4">
+                    <!-- Objectives -->
+                    <template x-for="(obj, index) in objectives" :key="index">
+                        <div class="border rounded-lg p-4 bg-gray-50">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="font-medium text-gray-900">Objective <span x-text="index + 1"></span></h3>
+                                <button type="button" @click="removeObjective(index)" 
+                                        x-show="objectives.length > 1"
+                                        class="text-red-600 hover:text-red-700">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Metric</label>
+                                    <select x-model="obj.metric" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500">
+                                        <option value="capacitance">Capacitance</option>
+                                        <option value="esr">ESR</option>
+                                        <option value="rate_capability">Rate Capability</option>
+                                        <option value="cycle_life">Cycle Life</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Target</label>
+                                    <select x-model="obj.target" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500">
+                                        <option value="maximize">Maximize</option>
+                                        <option value="minimize">Minimize</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Weight</label>
+                                    <input type="number" x-model="obj.weight" step="0.1" min="0.1" max="2" 
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Min Constraint</label>
+                                    <input type="number" x-model="obj.constraint_min" step="1" 
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500">
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    
+                    <button type="button" @click="addObjective()" 
+                            class="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-purple-500 hover:text-purple-600 transition">
+                        + Add Objective
+                    </button>
+                    
+                    <!-- Algorithm Parameters -->
+                    <div class="border-t pt-4 mt-4">
+                        <h3 class="font-medium text-gray-900 mb-3">Algorithm Parameters</h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Population Size</label>
+                                <input type="number" x-model="population_size" min="20" max="500" step="10"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Generations</label>
+                                <input type="number" x-model="generations" min="10" max="200" step="10"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <button type="submit" :disabled="loading" 
+                            class="w-full px-6 py-3 bg-purple-600 text-white font-medium rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition">
+                        <span x-show="!loading">Run Optimization</span>
+                        <span x-show="loading" class="flex items-center justify-center">
+                            <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Optimizing...
+                        </span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Results Panel -->
+        <div>
+            <!-- Pareto Frontier Visualization -->
+            <div x-show="results" x-cloak class="bg-white shadow rounded-lg p-6 mb-6 fade-in">
+                <h2 class="text-xl font-semibold mb-4">Pareto Frontier</h2>
+                <div id="paretoChart" style="width: 100%; height: 400px;"></div>
+            </div>
+            
+            <div class="bg-white shadow rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Pareto-Optimal Solutions</h2>
+                
+                <div x-show="!results" class="text-center py-12 text-gray-400">
+                    <svg class="mx-auto h-12 w-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <p>Configure objectives and run optimization to see results</p>
+                </div>
+                
+                <div x-show="results" x-cloak class="space-y-3 fade-in">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                        <div class="text-sm text-blue-800">
+                            Found <span class="font-bold" x-text="results?.pareto_size"></span> Pareto-optimal solutions
+                            from <span x-text="results?.total_evaluated"></span> evaluated candidates
+                        </div>
+                    </div>
+                    
+                    <div class="max-h-96 overflow-y-auto space-y-2">
+                        <template x-for="(solution, index) in results?.pareto_optimal?.slice(0, 10)" :key="index">
+                            <div class="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer transition"
+                                 @click="selectedSolution = solution">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="text-sm font-medium text-gray-900">Solution <span x-text="index + 1"></span></span>
+                                    <span class="text-xs text-gray-500">Rank <span x-text="solution.rank"></span></span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 text-xs">
+                                    <div>
+                                        <span class="text-gray-600">Capacitance:</span>
+                                        <span class="font-medium" x-text="solution.predictions.capacitance.toFixed(1)"></span> mF/cm²
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-600">ESR:</span>
+                                        <span class="font-medium" x-text="solution.predictions.esr.toFixed(2)"></span> Ω
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-600">Rate Cap:</span>
+                                        <span class="font-medium" x-text="solution.predictions.rate_capability.toFixed(1)"></span>%
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-600">Cycle Life:</span>
+                                        <span class="font-medium" x-text="solution.predictions.cycle_life.toLocaleString()"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Selected Solution Details -->
+            <div x-show="selectedSolution" x-cloak class="mt-6 bg-white shadow rounded-lg p-6 fade-in">
+                <h3 class="text-lg font-semibold mb-3">Solution Details</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div><span class="text-gray-600">MXene:</span> <span x-text="selectedSolution?.composition?.mxene_type"></span></div>
+                        <div><span class="text-gray-600">Terminations:</span> <span x-text="selectedSolution?.composition?.terminations"></span></div>
+                        <div><span class="text-gray-600">Electrolyte:</span> <span x-text="selectedSolution?.composition?.electrolyte"></span></div>
+                        <div><span class="text-gray-600">Thickness:</span> <span x-text="selectedSolution?.composition?.thickness_um?.toFixed(1)"></span> μm</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function optimizeData() {
+        return {
+            loading: false,
+            objectives: [
+                { metric: 'capacitance', target: 'maximize', weight: 1.0, constraint_min: null },
+                { metric: 'esr', target: 'minimize', weight: 0.8, constraint_min: null }
+            ],
+            population_size: 100,
+            generations: 50,
+            results: null,
+            selectedSolution: null,
+            
+            addObjective() {
+                this.objectives.push({
+                    metric: 'cycle_life',
+                    target: 'maximize',
+                    weight: 1.0,
+                    constraint_min: null
+                });
+            },
+            
+            removeObjective(index) {
+                this.objectives.splice(index, 1);
+            },
+            
+            async optimize() {
+                this.loading = true;
+                try {
+                    const data = {
+                        objectives: this.objectives.map(obj => ({
+                            ...obj,
+                            constraint_min: obj.constraint_min ? parseFloat(obj.constraint_min) : null
+                        })),
+                        population_size: parseInt(this.population_size),
+                        generations: parseInt(this.generations)
+                    };
+                    
+                    this.results = await this.apiCall('POST', '/optimize', data);
+                    this.showToast(`Found ${this.results.pareto_size} optimal solutions!`, 'success');
+                    
+                    // Render Pareto frontier
+                    this.$nextTick(() => this.renderParetoFrontier());
+                } catch (error) {
+                    console.error('Optimization failed:', error);
+                } finally {
+                    this.loading = false;
+                }
+            },
+            
+            renderParetoFrontier() {
+                if (!this.results || this.results.pareto_optimal.length === 0) return;
+                
+                const solutions = this.results.pareto_optimal;
+                
+                // Get first two objectives for 2D plot
+                const obj1 = this.objectives[0].metric;
+                const obj2 = this.objectives[1]?.metric || 'esr';
+                
+                const x = solutions.map(s => s.predictions[obj1]);
+                const y = solutions.map(s => s.predictions[obj2]);
+                const text = solutions.map((s, i) => 
+                    `Solution ${i + 1}<br>` +
+                    `${obj1}: ${s.predictions[obj1].toFixed(2)}<br>` +
+                    `${obj2}: ${s.predictions[obj2].toFixed(2)}<br>` +
+                    `Rank: ${s.rank}`
+                );
+                
+                const trace = {
+                    x: x,
+                    y: y,
+                    mode: 'markers+lines',
+                    type: 'scatter',
+                    text: text,
+                    hovertemplate: '%{text}<extra></extra>',
+                    marker: {
+                        size: 12,
+                        color: solutions.map(s => s.crowding_distance),
+                        colorscale: 'Viridis',
+                        showscale: true,
+                        colorbar: {
+                            title: 'Crowding<br>Distance',
+                            thickness: 15,
+                            len: 0.5
+                        },
+                        line: {
+                            color: 'white',
+                            width: 2
+                        }
+                    },
+                    line: {
+                        color: 'rgba(102, 126, 234, 0.3)',
+                        width: 1,
+                        dash: 'dot'
+                    }
+                };
+                
+                const layout = {
+                    title: 'Pareto Frontier',
+                    xaxis: { 
+                        title: this.formatMetricName(obj1),
+                        zeroline: false 
+                    },
+                    yaxis: { 
+                        title: this.formatMetricName(obj2),
+                        zeroline: false 
+                    },
+                    hovermode: 'closest',
+                    plot_bgcolor: '#f9fafb',
+                    paper_bgcolor: 'white',
+                    margin: { t: 50, b: 50, l: 60, r: 50 }
+                };
+                
+                const config = {
+                    responsive: true,
+                    displayModeBar: true,
+                    toImageButtonOptions: {
+                        format: 'png',
+                        filename: 'pareto_frontier',
+                        height: 600,
+                        width: 800,
+                        scale: 2
+                    }
+                };
+                
+                Plotly.newPlot('paretoChart', [trace], layout, config);
+            },
+            
+            formatMetricName(metric) {
+                const names = {
+                    'capacitance': 'Areal Capacitance (mF/cm²)',
+                    'esr': 'ESR (Ω)',
+                    'rate_capability': 'Rate Capability (%)',
+                    'cycle_life': 'Cycle Life (cycles)'
+                };
+                return names[metric] || metric;
+            }
+        }
+    }
+</script>
+{% endblock %}

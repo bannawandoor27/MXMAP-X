@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}Explore - MXMAP-X{% endblock %}
+
+{% block content %}
+<div x-data="exploreData()" x-init="loadData()" class="px-4 py-6">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Chemistry Space Exploration</h1>
+        <p class="mt-2 text-gray-600">Visualize the design space and discover material relationships</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Controls -->
+        <div class="lg:col-span-1">
+            <div class="bg-white shadow rounded-lg p-6 sticky top-6">
+                <h2 class="text-lg font-semibold mb-4">Visualization Settings</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Number of Samples</label>
+                        <input type="number" x-model="n_samples" min="50" max="1000" step="50"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Color By</label>
+                        <select x-model="colorBy" @change="updateVisualization()"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500">
+                            <option value="capacitance">Capacitance</option>
+                            <option value="esr">ESR</option>
+                            <option value="rate_capability">Rate Capability</option>
+                            <option value="cycle_life">Cycle Life</option>
+                        </select>
+                    </div>
+                    
+                    <button @click="loadData()" :disabled="loading"
+                            class="w-full px-4 py-2 bg-purple-600 text-white font-medium rounded-md hover:bg-purple-700 disabled:opacity-50 transition">
+                        <span x-show="!loading">Generate Map</span>
+                        <span x-show="loading">Loading...</span>
+                    </button>
+                </div>
+                
+                <!-- Statistics -->
+                <div x-show="mapData" x-cloak class="mt-6 pt-6 border-t">
+                    <h3 class="text-sm font-semibold text-gray-900 mb-2">Statistics</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Total Devices:</span>
+                            <span class="font-medium" x-text="mapData?.devices?.length"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Avg Capacitance:</span>
+                            <span class="font-medium" x-text="avgCapacitance?.toFixed(1) + ' mF/cm²'"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Avg ESR:</span>
+                            <span class="font-medium" x-text="avgESR?.toFixed(2) + ' Ω'"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visualization -->
+        <div class="lg:col-span-3">
+            <div class="bg-white shadow rounded-lg p-6">
+                <div x-show="!mapData" class="text-center py-24 text-gray-400">
+                    <svg class="mx-auto h-16 w-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                    </svg>
+                    <p class="text-lg">Click "Generate Map" to visualize the chemistry space</p>
+                </div>
+                
+                <div x-show="mapData" x-cloak class="fade-in">
+                    <div id="chemistryMap" style="width: 100%; height: 600px;"></div>
+                </div>
+                
+                <!-- Selected Point Info -->
+                <div x-show="selectedPoint" x-cloak class="mt-6 p-4 bg-gray-50 rounded-lg fade-in">
+                    <h3 class="font-semibold text-gray-900 mb-2">Selected Device</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                        <div>
+                            <span class="text-gray-600">MXene:</span>
+                            <div class="font-medium" x-text="selectedPoint?.composition?.mxene_type"></div>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Electrolyte:</span>
+                            <div class="font-medium" x-text="selectedPoint?.composition?.electrolyte"></div>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Capacitance:</span>
+                            <div class="font-medium" x-text="selectedPoint?.predictions?.capacitance?.toFixed(1) + ' mF/cm²'"></div>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">ESR:</span>
+                            <div class="font-medium" x-text="selectedPoint?.predictions?.esr?.toFixed(2) + ' Ω'"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function exploreData() {
+        return {
+            loading: false,
+            n_samples: 200,
+            colorBy: 'capacitance',
+            mapData: null,
+            selectedPoint: null,
+            chart: null,
+            
+            get avgCapacitance() {
+                if (!this.mapData?.devices) return 0;
+                const sum = this.mapData.devices.reduce((acc, d) => acc + d.predictions.capacitance, 0);
+                return sum / this.mapData.devices.length;
+            },
+            
+            get avgESR() {
+                if (!this.mapData?.devices) return 0;
+                const sum = this.mapData.devices.reduce((acc, d) => acc + d.predictions.esr, 0);
+                return sum / this.mapData.devices.length;
+            },
+            
+            async loadData() {
+                this.loading = true;
+                try {
+                    this.mapData = await this.apiCall('GET', `/explore?n_samples=${this.n_samples}`);
+                    this.$nextTick(() => this.renderChart());
+                    this.showToast('Chemistry map generated!', 'success');
+                } catch (error) {
+                    console.error('Failed to load map:', error);
+                } finally {
+                    this.loading = false;
+                }
+            },
+            
+            renderChart() {
+                if (!this.mapData) return;
+                
+                const devices = this.mapData.devices;
+                
+                // Prepare data for Plotly
+                const x = devices.map(d => d.embedding.x);
+                const y = devices.map(d => d.embedding.y);
+                const colors = devices.map(d => d.predictions[this.colorBy]);
+                const text = devices.map(d => 
+                    `${d.composition.mxene_type}<br>` +
+                    `${d.composition.electrolyte}<br>` +
+                    `Cap: ${d.predictions.capacitance.toFixed(1)} mF/cm²<br>` +
+                    `ESR: ${d.predictions.esr.toFixed(2)} Ω`
+                );
+                
+                const trace = {
+                    x: x,
+                    y: y,
+                    mode: 'markers',
+                    type: 'scatter',
+                    text: text,
+                    hovertemplate: '%{text}<extra></extra>',
+                    marker: {
+                        size: 10,
+                        color: colors,
+                        colorscale: 'Viridis',
+                        showscale: true,
+                        colorbar: {
+                            title: this.getColorBarTitle(),
+                            thickness: 15,
+                            len: 0.7
+                        },
+                        line: {
+                            color: 'white',
+                            width: 1
+                        }
+                    }
+                };
+                
+                const layout = {
+                    title: 'MXene Chemistry Space (UMAP)',
+                    xaxis: { title: 'UMAP Dimension 1', zeroline: false },
+                    yaxis: { title: 'UMAP Dimension 2', zeroline: false },
+                    hovermode: 'closest',
+                    plot_bgcolor: '#f9fafb',
+                    paper_bgcolor: 'white',
+                    margin: { t: 50, b: 50, l: 50, r: 50 }
+                };
+                
+                const config = {
+                    responsive: true,
+                    displayModeBar: true,
+                    modeBarButtonsToRemove: ['lasso2d', 'select2d'],
+                    toImageButtonOptions: {
+                        format: 'png',
+                        filename: 'chemistry_map',
+                        height: 800,
+                        width: 1200,
+                        scale: 2
+                    }
+                };
+                
+                Plotly.newPlot('chemistryMap', [trace], layout, config);
+                
+                // Add click handler
+                document.getElementById('chemistryMap').on('plotly_click', (data) => {
+                    const pointIndex = data.points[0].pointIndex;
+                    this.selectedPoint = devices[pointIndex];
+                });
+            },
+            
+            getColorBarTitle() {
+                const titles = {
+                    'capacitance': 'Capacitance<br>(mF/cm²)',
+                    'esr': 'ESR (Ω)',
+                    'rate_capability': 'Rate Cap.<br>(%)',
+                    'cycle_life': 'Cycle Life<br>(cycles)'
+                };
+                return titles[this.colorBy] || this.colorBy;
+            },
+            
+            getColor(value) {
+                // Color gradient from blue (low) to red (high)
+                const normalized = (value - this.getMinValue()) / (this.getMaxValue() - this.getMinValue());
+                const r = Math.floor(normalized * 255);
+                const b = Math.floor((1 - normalized) * 255);
+                return `rgba(${r}, 100, ${b}, 0.6)`;
+            },
+            
+            getMinValue() {
+                if (!this.mapData?.devices) return 0;
+                return Math.min(...this.mapData.devices.map(d => d.predictions[this.colorBy]));
+            },
+            
+            getMaxValue() {
+                if (!this.mapData?.devices) return 1;
+                return Math.max(...this.mapData.devices.map(d => d.predictions[this.colorBy]));
+            },
+            
+            updateVisualization() {
+                if (this.mapData) {
+                    this.renderChart();
+                }
+            }
+        }
+    }
+</script>
+{% endblock %}

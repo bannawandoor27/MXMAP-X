@@ -1,0 +1,689 @@
+{% extends "base.html" %}
+
+{% block title %}Recipe Card - MXMAP-X{% endblock %}
+
+{% block extra_head %}
+<!-- jsPDF for PDF export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!-- JSZip for batch download -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+<style>
+    @media print {
+        nav, .no-print { display: none !important; }
+        .recipe-card { box-shadow: none !important; page-break-after: always; }
+    }
+    
+    .recipe-card {
+        background: white;
+        max-width: 210mm;
+        margin: 0 auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div x-data="recipeData()" x-init="init()" class="px-4 py-6">
+    <!-- Header -->
+    <div class="mb-8 flex justify-between items-center no-print">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Recipe Cards</h1>
+            <p class="mt-2 text-gray-600">Fabrication recipes for MXene supercapacitors</p>
+        </div>
+        <div class="flex space-x-2">
+            <button @click="showFavorites = !showFavorites" 
+                    class="px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition flex items-center">
+                <svg class="w-5 h-5 mr-2 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+                Favorites (<span x-text="favorites.length"></span>)
+            </button>
+            <button @click="batchDownload()" :disabled="favorites.length === 0"
+                    class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 transition">
+                Download All
+            </button>
+        </div>
+    </div>
+
+
+    <!-- Recipe List / Favorites Toggle -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+            <div class="bg-white shadow rounded-lg p-6 sticky top-6 no-print">
+                <h2 class="text-lg font-semibold mb-4">Create Recipe</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">From Prediction</label>
+                        <button @click="createFromCurrentPrediction()" 
+                                class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                            Use Current Result
+                        </button>
+                    </div>
+                    
+                    <div class="pt-4 border-t">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Quick Templates</label>
+                        <div class="space-y-2">
+                            <button @click="loadTemplate('high_capacitance')" 
+                                    class="w-full px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition text-left">
+                                High Capacitance
+                            </button>
+                            <button @click="loadTemplate('long_cycle_life')" 
+                                    class="w-full px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition text-left">
+                                Long Cycle Life
+                            </button>
+                            <button @click="loadTemplate('low_esr')" 
+                                    class="w-full px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition text-left">
+                                Low ESR
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recipe Cards -->
+        <div class="lg:col-span-3">
+            <div x-show="!currentRecipe && recipes.length === 0" class="text-center py-24 text-gray-400 bg-white rounded-lg shadow">
+                <svg class="mx-auto h-16 w-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <p class="text-lg">No recipe cards yet</p>
+                <p class="text-sm mt-2">Create a recipe from your predictions or use a template</p>
+            </div>
+            
+            <!-- Current Recipe Card -->
+            <div x-show="currentRecipe" x-cloak class="recipe-card bg-white shadow-lg rounded-lg overflow-hidden mb-6">
+                <div id="recipeCardContent">
+                    <!-- Header -->
+                    <div class="gradient-bg text-white p-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h2 class="text-2xl font-bold" x-text="currentRecipe?.recipe_id"></h2>
+                                <p class="text-sm opacity-90 mt-1">MXene Supercapacitor Fabrication Recipe</p>
+                            </div>
+                            <div class="flex space-x-2 no-print">
+                                <button @click="toggleFavorite(currentRecipe)" 
+                                        class="p-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-md transition">
+                                    <svg class="w-5 h-5" :class="isFavorite(currentRecipe) ? 'fill-current' : 'fill-none'" 
+                                         stroke="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Device Composition -->
+                    <div class="p-6 border-b">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Device Composition</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <div>
+                                <span class="text-sm text-gray-600">MXene Type</span>
+                                <div class="font-medium" x-text="currentRecipe?.device_composition?.mxene_type"></div>
+                            </div>
+                            <div>
+                                <span class="text-sm text-gray-600">Terminations</span>
+                                <div class="font-medium" x-text="currentRecipe?.device_composition?.terminations"></div>
+                            </div>
+                            <div>
+                                <span class="text-sm text-gray-600">Electrolyte</span>
+                                <div class="font-medium" x-text="currentRecipe?.device_composition?.electrolyte"></div>
+                            </div>
+                            <div>
+                                <span class="text-sm text-gray-600">Thickness</span>
+                                <div class="font-medium" x-text="currentRecipe?.device_composition?.thickness_um + ' μm'"></div>
+                            </div>
+                            <div>
+                                <span class="text-sm text-gray-600">Deposition</span>
+                                <div class="font-medium" x-text="currentRecipe?.device_composition?.deposition_method"></div>
+                            </div>
+                            <div>
+                                <span class="text-sm text-gray-600">Difficulty</span>
+                                <div class="font-medium">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs"
+                                          :class="{
+                                              'bg-green-100 text-green-800': currentRecipe?.difficulty === 'Beginner',
+                                              'bg-yellow-100 text-yellow-800': currentRecipe?.difficulty === 'Intermediate',
+                                              'bg-orange-100 text-orange-800': currentRecipe?.difficulty === 'Advanced',
+                                              'bg-red-100 text-red-800': currentRecipe?.difficulty === 'Expert'
+                                          }"
+                                          x-text="currentRecipe?.difficulty"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Processing Steps -->
+                    <div class="p-6 border-b">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Processing Steps</h3>
+                        <div class="space-y-4">
+                            <template x-for="step in currentRecipe?.processing_steps" :key="step.step">
+                                <div class="flex">
+                                    <div class="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                                        <span x-text="step.step"></span>
+                                    </div>
+                                    <div class="ml-4 flex-1">
+                                        <h4 class="font-semibold text-gray-900" x-text="step.title"></h4>
+                                        <p class="text-sm text-gray-600 mt-1" x-text="step.description"></p>
+                                        <div class="mt-2 flex flex-wrap gap-3 text-xs text-gray-500">
+                                            <span>⏱️ <span x-text="step.duration"></span></span>
+                                            <span>🌡️ <span x-text="step.temperature"></span></span>
+                                        </div>
+                                        <div class="mt-2 text-xs text-gray-500">
+                                            <span class="font-medium">Equipment:</span>
+                                            <span x-text="step.equipment?.join(', ')"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+
+                    <!-- Predicted Performance -->
+                    <div class="p-6 border-b bg-gray-50">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Expected Performance</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="bg-white p-3 rounded-lg">
+                                <span class="text-xs text-gray-600">Capacitance</span>
+                                <div class="text-lg font-bold text-blue-600" x-text="currentRecipe?.predicted_performance?.areal_capacitance"></div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg">
+                                <span class="text-xs text-gray-600">ESR</span>
+                                <div class="text-lg font-bold text-green-600" x-text="currentRecipe?.predicted_performance?.esr"></div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg">
+                                <span class="text-xs text-gray-600">Rate Capability</span>
+                                <div class="text-lg font-bold text-purple-600" x-text="currentRecipe?.predicted_performance?.rate_capability"></div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg">
+                                <span class="text-xs text-gray-600">Cycle Life</span>
+                                <div class="text-lg font-bold text-orange-600" x-text="currentRecipe?.predicted_performance?.cycle_life"></div>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-sm text-gray-600">
+                            <span class="font-medium">Confidence:</span>
+                            <span class="capitalize" x-text="currentRecipe?.predicted_performance?.confidence"></span>
+                        </div>
+                    </div>
+
+                    <!-- Materials List -->
+                    <div class="p-6 border-b">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Materials List</h3>
+                        <table class="min-w-full text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Material</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Purity</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <template x-for="material in currentRecipe?.materials_list" :key="material.name">
+                                    <tr>
+                                        <td class="px-3 py-2" x-text="material.name"></td>
+                                        <td class="px-3 py-2" x-text="material.quantity"></td>
+                                        <td class="px-3 py-2" x-text="material.purity"></td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Safety Notes -->
+                    <div class="p-6 border-b bg-yellow-50">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            Safety Notes
+                        </h3>
+                        <ul class="space-y-2">
+                            <template x-for="note in currentRecipe?.safety_notes" :key="note">
+                                <li class="flex items-start">
+                                    <span class="text-yellow-600 mr-2">⚠️</span>
+                                    <span class="text-sm text-gray-700" x-text="note"></span>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+
+
+                    <!-- Footer -->
+                    <div class="p-6 bg-gray-50">
+                        <div class="flex justify-between items-center text-sm text-gray-600">
+                            <div>
+                                <span class="font-medium">Estimated Time:</span>
+                                <span x-text="currentRecipe?.estimated_time"></span>
+                            </div>
+                            <div>
+                                <span class="font-medium">Generated:</span>
+                                <span x-text="new Date().toLocaleDateString()"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="p-4 bg-gray-100 flex justify-end space-x-2 no-print">
+                    <button @click="printRecipe()" 
+                            class="px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition">
+                        🖨️ Print
+                    </button>
+                    <button @click="exportToPDF()" 
+                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                        📄 Export PDF
+                    </button>
+                    <button @click="shareRecipe()" 
+                            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition">
+                        🔗 Share Link
+                    </button>
+                </div>
+            </div>
+
+            <!-- Favorites List -->
+            <div x-show="showFavorites && favorites.length > 0" x-cloak class="space-y-4">
+                <h2 class="text-xl font-semibold text-gray-900">Favorite Recipes</h2>
+                <template x-for="recipe in favorites" :key="recipe.recipe_id">
+                    <div class="bg-white shadow rounded-lg p-4 hover:shadow-md transition cursor-pointer"
+                         @click="loadRecipe(recipe)">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900" x-text="recipe.recipe_id"></h3>
+                                <p class="text-sm text-gray-600 mt-1">
+                                    <span x-text="recipe.device_composition.mxene_type"></span> • 
+                                    <span x-text="recipe.device_composition.electrolyte"></span> • 
+                                    <span x-text="recipe.device_composition.thickness_um + ' μm'"></span>
+                                </p>
+                                <div class="mt-2 flex space-x-4 text-xs text-gray-500">
+                                    <span x-text="'⏱️ ' + recipe.estimated_time"></span>
+                                    <span x-text="'📊 ' + recipe.difficulty"></span>
+                                </div>
+                            </div>
+                            <button @click.stop="toggleFavorite(recipe)" 
+                                    class="text-yellow-500 hover:text-yellow-600">
+                                <svg class="w-6 h-6 fill-current" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function recipeData() {
+        return {
+            currentRecipe: null,
+            recipes: [],
+            favorites: [],
+            showFavorites: false,
+            
+            init() {
+                // Load favorites from localStorage
+                const saved = localStorage.getItem('mxmap_favorites');
+                if (saved) {
+                    this.favorites = JSON.parse(saved);
+                }
+                
+                // Check if there's a recipe ID in URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const recipeId = urlParams.get('id');
+                if (recipeId) {
+                    this.loadRecipeById(recipeId);
+                }
+            },
+            
+            async createFromCurrentPrediction() {
+                // Get the latest prediction from session storage
+                const prediction = sessionStorage.getItem('latest_prediction');
+                if (!prediction) {
+                    this.showToast('No prediction found. Make a prediction first.', 'error');
+                    return;
+                }
+                
+                const predData = JSON.parse(prediction);
+                await this.generateRecipe(predData);
+            },
+            
+            async loadTemplate(template) {
+                const templates = {
+                    high_capacitance: {
+                        mxene_type: 'Ti3C2Tx',
+                        terminations: 'O',
+                        electrolyte: 'H2SO4',
+                        thickness_um: 10.0,
+                        deposition_method: 'vacuum_filtration',
+                        electrolyte_concentration: 1.0,
+                        annealing_temp_c: 120,
+                        annealing_time_min: 60
+                    },
+                    long_cycle_life: {
+                        mxene_type: 'Ti3C2Tx',
+                        terminations: 'F',
+                        electrolyte: 'ionic_liquid',
+                        thickness_um: 5.0,
+                        deposition_method: 'spray_coating',
+                        annealing_temp_c: 150,
+                        annealing_time_min: 90
+                    },
+                    low_esr: {
+                        mxene_type: 'Ti3C2Tx',
+                        terminations: 'O',
+                        electrolyte: 'KOH',
+                        thickness_um: 3.0,
+                        deposition_method: 'spray_coating',
+                        electrolyte_concentration: 2.0
+                    }
+                };
+                
+                const config = templates[template];
+                if (config) {
+                    await this.generateRecipe(config);
+                }
+            },
+            
+            async generateRecipe(deviceConfig) {
+                try {
+                    // First get prediction
+                    const prediction = await this.apiCall('POST', '/predict', deviceConfig);
+                    
+                    // Create a mock device ID (in real app, save to DB first)
+                    const mockDeviceId = Math.floor(Math.random() * 10000);
+                    
+                    // Generate recipe card
+                    this.currentRecipe = {
+                        recipe_id: `MXMAP-${String(mockDeviceId).padStart(6, '0')}`,
+                        device_composition: deviceConfig,
+                        predicted_performance: {
+                            areal_capacitance: `${prediction.areal_capacitance.value} mF/cm²`,
+                            esr: `${prediction.esr.value} Ω`,
+                            rate_capability: `${prediction.rate_capability.value}%`,
+                            cycle_life: `${prediction.cycle_life.value} cycles`,
+                            confidence: prediction.overall_confidence
+                        },
+                        processing_steps: this.generateProcessingSteps(deviceConfig),
+                        materials_list: this.generateMaterialsList(deviceConfig),
+                        safety_notes: this.generateSafetyNotes(deviceConfig),
+                        estimated_time: this.calculateEstimatedTime(deviceConfig),
+                        difficulty: this.calculateDifficulty(deviceConfig)
+                    };
+                    
+                    this.showToast('Recipe card generated!', 'success');
+                } catch (error) {
+                    console.error('Failed to generate recipe:', error);
+                }
+            },
+
+            
+            generateProcessingSteps(config) {
+                const steps = [];
+                
+                // Step 1: MXene Preparation
+                steps.push({
+                    step: 1,
+                    title: 'MXene Preparation',
+                    description: `Prepare ${config.mxene_type} MXene with ${config.terminations} terminations`,
+                    duration: '2-4 hours',
+                    temperature: 'Room temperature',
+                    equipment: ['Sonicator', 'Centrifuge', 'Vacuum filtration setup']
+                });
+                
+                // Step 2: Electrolyte Preparation
+                if (config.electrolyte_concentration) {
+                    steps.push({
+                        step: 2,
+                        title: 'Electrolyte Preparation',
+                        description: `Prepare ${config.electrolyte_concentration}M ${config.electrolyte} solution`,
+                        duration: '30 minutes',
+                        temperature: 'Room temperature',
+                        equipment: ['Volumetric flask', 'Magnetic stirrer']
+                    });
+                }
+                
+                // Step 3: Film Deposition
+                const depositionMethods = {
+                    vacuum_filtration: {
+                        description: `Deposit MXene film via vacuum filtration to achieve ${config.thickness_um}μm thickness`,
+                        duration: '1-2 hours',
+                        equipment: ['Vacuum pump', 'Filtration membrane', 'Funnel']
+                    },
+                    spray_coating: {
+                        description: `Spray coat MXene dispersion to ${config.thickness_um}μm thickness`,
+                        duration: '30-60 minutes',
+                        equipment: ['Spray gun', 'Hot plate', 'Substrate holder']
+                    },
+                    drop_casting: {
+                        description: `Drop cast MXene dispersion to ${config.thickness_um}μm thickness`,
+                        duration: '2-4 hours',
+                        equipment: ['Micropipette', 'Substrate', 'Drying oven']
+                    }
+                };
+                
+                const deposition = depositionMethods[config.deposition_method] || depositionMethods.vacuum_filtration;
+                steps.push({
+                    step: steps.length + 1,
+                    title: 'Film Deposition',
+                    description: deposition.description,
+                    duration: deposition.duration,
+                    temperature: 'Room temperature',
+                    equipment: deposition.equipment
+                });
+                
+                // Step 4: Annealing (if applicable)
+                if (config.annealing_temp_c) {
+                    steps.push({
+                        step: steps.length + 1,
+                        title: 'Thermal Annealing',
+                        description: `Anneal at ${config.annealing_temp_c}°C for ${config.annealing_time_min} minutes`,
+                        duration: `${config.annealing_time_min} minutes`,
+                        temperature: `${config.annealing_temp_c}°C`,
+                        equipment: ['Tube furnace', 'Inert gas supply']
+                    });
+                }
+                
+                // Step 5: Device Assembly
+                steps.push({
+                    step: steps.length + 1,
+                    title: 'Device Assembly',
+                    description: `Assemble supercapacitor with ${config.electrolyte} electrolyte`,
+                    duration: '1-2 hours',
+                    temperature: 'Room temperature',
+                    equipment: ['Current collectors', 'Separator', 'Cell housing']
+                });
+                
+                return steps;
+            },
+
+            
+            generateMaterialsList(config) {
+                return [
+                    { name: `${config.mxene_type} MXene`, quantity: '~100 mg', purity: 'Research grade' },
+                    { name: config.electrolyte, quantity: '50-100 mL', purity: 'ACS grade' },
+                    { name: 'Deionized water', quantity: '500 mL', purity: '18.2 MΩ·cm' },
+                    { name: 'Current collectors', quantity: '2 pieces', purity: 'N/A' },
+                    { name: 'Separator membrane', quantity: '1 piece', purity: 'N/A' }
+                ];
+            },
+            
+            generateSafetyNotes(config) {
+                const notes = [
+                    'Wear appropriate PPE (lab coat, gloves, safety glasses)',
+                    `Handle ${config.electrolyte} with care - corrosive material`,
+                    'Work in well-ventilated area or fume hood',
+                    'Follow institutional chemical safety protocols'
+                ];
+                
+                if (config.annealing_temp_c && config.annealing_temp_c > 150) {
+                    notes.push('High temperature annealing - use heat-resistant gloves');
+                }
+                
+                return notes;
+            },
+            
+            calculateEstimatedTime(config) {
+                let hours = 4 + 2 + 1.5; // Base: prep + deposition + assembly
+                if (config.electrolyte_concentration) hours += 0.5;
+                if (config.annealing_temp_c) hours += (config.annealing_time_min / 60);
+                return `${hours.toFixed(1)} hours`;
+            },
+            
+            calculateDifficulty(config) {
+                let score = 0;
+                if (config.annealing_temp_c) score += 1;
+                if (config.deposition_method === 'spray_coating') score += 1;
+                if (config.thickness_um < 2 || config.thickness_um > 20) score += 1;
+                return ['Beginner', 'Intermediate', 'Advanced', 'Expert'][Math.min(score, 3)];
+            },
+            
+            printRecipe() {
+                window.print();
+            },
+            
+            async exportToPDF() {
+                try {
+                    const { jsPDF } = window.jspdf;
+                    const element = document.getElementById('recipeCardContent');
+                    
+                    // Use html2canvas to capture the content
+                    const canvas = await html2canvas(element, {
+                        scale: 2,
+                        useCORS: true,
+                        logging: false
+                    });
+                    
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    
+                    const imgWidth = 210; // A4 width in mm
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                    
+                    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                    pdf.save(`${this.currentRecipe.recipe_id}.pdf`);
+                    
+                    this.showToast('PDF exported successfully!', 'success');
+                } catch (error) {
+                    console.error('PDF export failed:', error);
+                    this.showToast('PDF export failed', 'error');
+                }
+            },
+
+            
+            shareRecipe() {
+                if (!this.currentRecipe) return;
+                
+                // Generate shareable link
+                const baseUrl = window.location.origin + window.location.pathname;
+                const shareUrl = `${baseUrl}?id=${this.currentRecipe.recipe_id}`;
+                
+                // Copy to clipboard
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    this.showToast('Share link copied to clipboard!', 'success');
+                }).catch(() => {
+                    // Fallback: show the link
+                    prompt('Share this link:', shareUrl);
+                });
+            },
+            
+            toggleFavorite(recipe) {
+                const index = this.favorites.findIndex(f => f.recipe_id === recipe.recipe_id);
+                if (index >= 0) {
+                    this.favorites.splice(index, 1);
+                    this.showToast('Removed from favorites', 'success');
+                } else {
+                    this.favorites.push(recipe);
+                    this.showToast('Added to favorites', 'success');
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('mxmap_favorites', JSON.stringify(this.favorites));
+            },
+            
+            isFavorite(recipe) {
+                if (!recipe) return false;
+                return this.favorites.some(f => f.recipe_id === recipe.recipe_id);
+            },
+            
+            loadRecipe(recipe) {
+                this.currentRecipe = recipe;
+                this.showFavorites = false;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            },
+            
+            async loadRecipeById(recipeId) {
+                // In a real app, fetch from API
+                // For now, check favorites
+                const recipe = this.favorites.find(f => f.recipe_id === recipeId);
+                if (recipe) {
+                    this.loadRecipe(recipe);
+                } else {
+                    this.showToast('Recipe not found', 'error');
+                }
+            },
+            
+            async batchDownload() {
+                if (this.favorites.length === 0) return;
+                
+                try {
+                    this.showToast('Preparing batch download...', 'success');
+                    
+                    const zip = new JSZip();
+                    const { jsPDF } = window.jspdf;
+                    
+                    // Generate PDF for each favorite
+                    for (let i = 0; i < this.favorites.length; i++) {
+                        const recipe = this.favorites[i];
+                        
+                        // Temporarily load recipe
+                        const originalRecipe = this.currentRecipe;
+                        this.currentRecipe = recipe;
+                        
+                        // Wait for DOM update
+                        await this.$nextTick();
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        
+                        const element = document.getElementById('recipeCardContent');
+                        const canvas = await html2canvas(element, {
+                            scale: 2,
+                            useCORS: true,
+                            logging: false
+                        });
+                        
+                        const imgData = canvas.toDataURL('image/png');
+                        const pdf = new jsPDF('p', 'mm', 'a4');
+                        const imgWidth = 210;
+                        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                        
+                        // Add PDF to zip
+                        const pdfBlob = pdf.output('blob');
+                        zip.file(`${recipe.recipe_id}.pdf`, pdfBlob);
+                        
+                        // Restore original recipe
+                        this.currentRecipe = originalRecipe;
+                    }
+                    
+                    // Generate and download zip
+                    const zipBlob = await zip.generateAsync({ type: 'blob' });
+                    saveAs(zipBlob, `mxmap-recipes-${new Date().toISOString().split('T')[0]}.zip`);
+                    
+                    this.showToast(`Downloaded ${this.favorites.length} recipes!`, 'success');
+                } catch (error) {
+                    console.error('Batch download failed:', error);
+                    this.showToast('Batch download failed', 'error');
+                }
+            }
+        }
+    }
+</script>
+{% endblock %}
+
