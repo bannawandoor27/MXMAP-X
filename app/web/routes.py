@@ -24,3 +24,9 @@ async def optimize(request: Request):
 async def explore(request: Request):
     """Chemistry space exploration interface."""
     return templates.TemplateResponse("explore.html", {"request": request})
+
+
+@router.get("/recipes", response_class=HTMLResponse)
+async def recipes(request: Request):
+    """Recipe card interface."""
+    return templates.TemplateResponse("recipe.html", {"request": request})

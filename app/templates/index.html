@@ -198,6 +198,10 @@
                                 </span>
                             </button>
                         </div>
+                        <a href="/recipes" x-show="result" x-cloak
+                           class="block w-full px-4 py-2 text-sm font-medium text-center text-white bg-green-600 hover:bg-green-700 rounded-md transition">
+                            📋 Create Recipe Card
+                        </a>
                     </div>
                 </form>
             </div>
@@ -501,6 +505,12 @@
                     
                     this.result = await this.apiCall('POST', '/predict', data);
                     this.showToast('Prediction completed successfully!', 'success');
+                    
+                    // Save to session storage for recipe generation
+                    sessionStorage.setItem('latest_prediction', JSON.stringify({
+                        form: data,
+                        result: this.result
+                    }));
                     
                     // Render radar chart
                     this.$nextTick(() => this.renderRadarChart());
