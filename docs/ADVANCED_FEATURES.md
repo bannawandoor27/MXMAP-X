@@ -995,3 +995,295 @@ geometry = {
 - CPE model: Brug et al., J. Electroanal. Chem. 176, 275 (1984)
 - MXene MSCs: Kurra et al., Nano Energy 13, 500 (2015)
 - AC-line filtering: Shao et al., Nat. Commun. 4, 2381 (2013)
+
+
+## Printing/Process-Aware Design
+
+### Overview
+
+The Printing/Process-Aware Design mode enables ink formulation optimization and printed film property prediction for various printing processes. It recommends ink windows, predicts Rs-T trade-offs, estimates post-treatment effects, and calculates manufacturability scores.
+
+### Key Features
+
+- **Ink Formulation Windows**: Process-specific recommendations for solids content, viscosity, surface tension, and flake size distribution
+- **Rs-T Trade-off Prediction**: Sheet resistance vs optical transmittance curves with Haacke Figure of Merit
+- **Post-Treatment Effects**: Annealing and pressing impact on conductivity and transmittance
+- **Manufacturability Score**: 0-100 score considering printability, risk, throughput, and yield
+- **Multi-Process Support**: Gravure, screen printing, inkjet, slot-die, and doctor blade
+
+### Supported Processes
+
+| Process | Solids (wt%) | Viscosity (mPa·s) | Thickness/Pass (nm) | Features |
+|---------|--------------|-------------------|---------------------|----------|
+| **Gravure** | 8-15 | 50-200 | 150 | High-speed R2R, fine features |
+| **Screen** | 5-12 | 800-3000 | 300 | Thick films, simple patterns |
+| **Inkjet** | 0.5-3 | 5-20 | 50 | Digital, fine features, thin films |
+| **Slot-Die** | 3-10 | 100-500 | 200 | Uniform coating, R2R |
+| **Doctor Blade** | 5-15 | 200-1000 | 250 | Lab-scale, flexible thickness |
+
+### Physical Models
+
+**Percolation Model:**
+- Coverage factor from process efficiency and number of passes
+- Percolation threshold at ~30% coverage
+- Effective medium approximation above threshold
+
+**Conductivity:**
+```
+σ_eff = σ_base × [(coverage - threshold) / (1 - threshold)]² × alignment_factor
+Rs = 1 / (σ_eff × thickness)
+```
+
+**Transmittance:**
+```
+T = exp(-α × thickness) × (1 - haze)
+haze ∝ flake_size
+```
+
+**Haacke Figure of Merit:**
+```
+Φ_TC = T^10 / Rs
+```
+Higher FoM indicates better transparent conductor performance.
+
+**Post-Treatment Effects:**
+- Annealing: Improves flake-flake contact, reduces Rs up to 40%
+- Pressing: Densifies film, reduces Rs up to 30%
+- Combined: Synergistic effect with 10% bonus
+
+### API Endpoints
+
+#### POST /api/v1/printing/recommend
+
+Get ink formulation recommendations and predicted film properties.
+
+**Request:**
+```json
+{
+  "process": "screen",
+  "mxene_type": "Ti3C2Tx",
+  "flake_size_um": 2.0,
+  "target_thickness_nm": 200,
+  "target_transmittance_550nm": 0.85,
+  "substrate": "PET",
+  "environment": {
+    "temp_C": 25,
+    "rh_pct": 45
+  },
+  "post_treatment": {
+    "anneal_C": 120,
+    "anneal_min": 30,
+    "press_MPa": 10
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "ink_window": {
+    "solids_wt_pct": [5, 12],
+    "viscosity_mPas": [800, 3000],
+    "surface_tension_mNpm": [30, 45],
+    "flake_distribution_um": {
+      "d10": 0.5,
+      "d50": 2.0,
+      "d90": 6.0
+    },
+    "additives": ["binder<=0.5 wt%", "surfactant<=0.2 wt%"]
+  },
+  "printed_film": {
+    "sheet_res_ohm_sq": 18.5,
+    "transmittance_550nm": 0.84,
+    "haacke_FoM": 0.00234,
+    "rs_t_curve": {
+      "rs_ohm_sq": [...],
+      "T_550nm": [...]
+    }
+  },
+  "post_treatment_effect": {
+    "delta_rs_pct": -35.0,
+    "delta_T_pct": -1.5,
+    "roughness_change_nm": -8.0
+  },
+  "manufacturability_score": 82,
+  "assumptions": "..."
+}
+```
+
+#### POST /api/v1/printing/estimate
+
+Estimate film properties for explicit ink formulation.
+
+**Request:**
+```json
+{
+  "process": "screen",
+  "solids_wt_pct": 8.0,
+  "viscosity_mPas": 1500,
+  "flake_size_um": 2.0,
+  "passes": 2,
+  "mxene_type": "Ti3C2Tx",
+  "post_treatment": {
+    "anneal_C": 120,
+    "anneal_min": 30,
+    "press_MPa": 10
+  }
+}
+```
+
+Returns same structure as `/recommend`.
+
+#### POST /api/v1/printing/fit
+
+Calibrate surrogate model from experimental data.
+
+**CSV Format:**
+```csv
+process,solids_wt_pct,viscosity_mPas,flake_d50_um,passes,post_anneal_C,post_press_MPa,thickness_nm,Rs_ohm_sq,T_550nm
+screen,8.0,1500,2.0,2,120,10,480,22.5,0.83
+screen,10.0,2000,2.5,2,150,15,520,15.8,0.80
+...
+```
+
+**Response:**
+```json
+{
+  "status": "success",
+  "process": "screen",
+  "metrics": {
+    "Rs_MAE_pct": 12.3,
+    "T_MAE_pct": 2.1,
+    "n_samples": 25
+  }
+}
+```
+
+#### GET /api/v1/printing/presets
+
+Get process presets and typical targets.
+
+### Manufacturability Score (0-100)
+
+**Components:**
+1. **Printability Window Match (30 pts)**: Solids and viscosity within recommended ranges
+2. **Risk Factors (25 pts)**: Nozzle clog, mesh flooding, flake size compatibility
+3. **Throughput (20 pts)**: Number of passes (fewer is better)
+4. **Post-Treatment Burden (15 pts)**: Annealing temperature vs substrate Tg, pressing requirements
+5. **Yield Estimate (10 pts)**: Adhesion, cracking risk
+
+**Score Bands:**
+- 80-100: Excellent manufacturability
+- 60-79: Good, minor optimization needed
+- 40-59: Moderate challenges
+- 0-39: Significant manufacturing risks
+
+### Web Interface
+
+Access at `/printing`.
+
+**Features:**
+- Process selector with 5 printing methods
+- Material and target inputs
+- Post-treatment configuration
+- Real-time manufacturability score with color coding
+- Rs-T trade-off plot (interactive Plotly)
+- Haacke FoM display
+- Ink window recommendations
+- Recipe card export
+
+### Design Guidelines
+
+**For Transparent Conductors:**
+- Target: Rs < 100 Ω/sq, T > 80%, Haacke FoM > 0.001
+- Use inkjet or slot-die for thin, uniform films
+- Multiple passes with low solids
+- Post-treatment essential for low Rs
+
+**For Opaque Electrodes:**
+- Target: Rs < 10 Ω/sq
+- Use screen printing or doctor blade for thick films
+- High solids, fewer passes
+- Less critical post-treatment
+
+**Process Selection:**
+- **Gravure**: High-volume production, fine patterns
+- **Screen**: Thick films, simple geometries, low cost
+- **Inkjet**: Prototyping, digital patterns, thin films
+- **Slot-Die**: Uniform large-area coating
+- **Doctor Blade**: Lab-scale, thickness control
+
+**Flake Size Optimization:**
+- Smaller flakes (< 1 μm): Better for inkjet, smoother films
+- Medium flakes (1-3 μm): Versatile, good balance
+- Larger flakes (> 3 μm): Higher conductivity but clog risk
+
+**Post-Treatment Strategy:**
+- Mild annealing (100-150°C): Safe for PET, 20-30% Rs reduction
+- High annealing (200-250°C): For PI/glass, 30-40% Rs reduction
+- Pressing (5-15 MPa): Improves contact, 20-30% Rs reduction
+- Combined: Best results, up to 50% total Rs reduction
+
+### Performance Targets
+
+- **Recommendation**: < 100 ms
+- **Estimation**: < 100 ms
+- **Calibration**: < 5 s for 5k rows
+- **Plot decimation**: ≤ 500 points per curve
+
+### Acceptance Criteria
+
+✓ **Ink Windows**: Non-empty ranges for all processes with realistic values  
+✓ **Rs-T Trade-off**: Monotonic curves showing feasible design space  
+✓ **Haacke FoM**: Computed and displayed for all predictions  
+✓ **Post-Treatment**: ≥ 20% Rs reduction for typical settings  
+✓ **Manufacturability**: Score 0-100 displayed and included in recipes  
+✓ **Calibration**: Updates estimates, versioned per process
+
+### Example Use Cases
+
+**1. Transparent Conductor for Touch Screen**
+```python
+# Target: Rs < 50 Ω/sq, T > 85%
+process = "slot-die"
+target_thickness = 150  # nm
+target_T = 0.85
+post_treatment = {"anneal_C": 120, "press_MPa": 10}
+# Expected: 2-3 passes, FoM ~ 0.003, Score ~ 85
+```
+
+**2. Opaque Electrode for Supercapacitor**
+```python
+# Target: Rs < 5 Ω/sq, thick film
+process = "screen"
+target_thickness = 800  # nm
+post_treatment = {"anneal_C": 150, "press_MPa": 15}
+# Expected: 2-3 passes, Rs ~ 3 Ω/sq, Score ~ 90
+```
+
+**3. Inkjet Prototyping**
+```python
+# Digital pattern, thin film
+process = "inkjet"
+flake_size = 0.5  # μm (small for nozzle)
+target_thickness = 100  # nm
+# Expected: 5-8 passes, careful formulation, Score ~ 70
+```
+
+### Database Schema
+
+**printing_calibrations** table:
+- Stores process-specific calibration coefficients
+- Versioned for tracking improvements
+- Metrics include Rs MAE, T MAE
+
+**printing_runs** table:
+- Logs all recommendations and estimations
+- Stores manufacturability scores for analysis
+- Enables process optimization over time
+
+### References
+
+- Haacke FoM: Haacke et al., J. Appl. Phys. 47, 4086 (1976)
+- MXene inks: Orangi et al., ACS Nano 14, 640 (2020)
+- Printing processes: Khan et al., Adv. Mater. 32, 2003014 (2020)

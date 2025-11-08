@@ -383,3 +383,26 @@ class FilteringRun(Base):
     params_json = Column(Text, nullable=False)
     area_mm2 = Column(Float, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class PrintingCalibration(Base):
+    """Printing process calibrations."""
+    __tablename__ = "printing_calibrations"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    process = Column(String(50), nullable=False)
+    version = Column(String(50), nullable=False)
+    coeffs_json = Column(Text, nullable=False)
+    metrics_json = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class PrintingRun(Base):
+    """Printing recommendation runs."""
+    __tablename__ = "printing_runs"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    input_json = Column(Text, nullable=False)
+    output_json = Column(Text, nullable=False)
+    manufacturability_score = Column(Integer, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
