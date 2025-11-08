@@ -1,0 +1,76 @@
+# MXMAP-X ML Model Configuration
+
+model:
+  version: "v0.1.0-dummy"
+  type: "dummy"
+  description: "Physics-informed dummy predictor for testing"
+
+# Feature configuration
+features:
+  required:
+    - mxene_type
+    - terminations
+    - electrolyte
+    - thickness_um
+    - deposition_method
+  
+  optional:
+    - electrolyte_concentration
+    - annealing_temp_c
+    - annealing_time_min
+    - interlayer_spacing_nm
+    - specific_surface_area_m2g
+    - pore_volume_cm3g
+    - optical_transmittance
+    - sheet_resistance_ohm_sq
+
+# Target metrics
+targets:
+  - areal_capacitance_mf_cm2
+  - esr_ohm
+  - rate_capability_percent
+  - cycle_life_cycles
+
+# Uncertainty quantification
+uncertainty:
+  method: "dummy"  # Options: dummy, bootstrap, quantile_regression
+  confidence_level: 0.95
+  confidence_thresholds:
+    high: 0.90
+    medium: 0.70
+    low: 0.0
+
+# Model hyperparameters (for future XGBoost implementation)
+hyperparameters:
+  xgboost:
+    n_estimators: 200
+    max_depth: 6
+    learning_rate: 0.05
+    subsample: 0.8
+    colsample_bytree: 0.8
+    min_child_weight: 3
+    gamma: 0.1
+    reg_alpha: 0.1
+    reg_lambda: 1.0
+    random_state: 42
+
+# Training configuration
+training:
+  test_size: 0.2
+  validation_size: 0.1
+  random_state: 42
+  cv_folds: 5
+  
+# Feature engineering
+feature_engineering:
+  categorical_encoding: "target"  # Options: onehot, target, ordinal
+  numerical_scaling: "standard"   # Options: standard, minmax, robust
+  handle_missing: "median"        # Options: median, mean, drop
+
+# Performance thresholds
+performance_thresholds:
+  min_r2: 0.75
+  max_rmse_capacitance: 50.0
+  max_rmse_esr: 1.0
+  max_rmse_rate_capability: 10.0
+  max_rmse_cycle_life: 2000.0
