@@ -42,3 +42,9 @@ async def electrochromic(request: Request):
 async def filtering(request: Request):
     """AC-line filtering interface."""
     return templates.TemplateResponse("filtering.html", {"request": request})
+
+
+@router.get("/printing", response_class=HTMLResponse)
+async def printing(request: Request):
+    """Printing/process-aware design interface."""
+    return templates.TemplateResponse("printing.html", {"request": request})
