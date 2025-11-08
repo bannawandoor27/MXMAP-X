@@ -1,7 +1,7 @@
 """API v1 router configuration."""
 
 from fastapi import APIRouter
-from app.api.v1.endpoints import predictions, devices, models
+from app.api.v1.endpoints import predictions, devices, models, advanced
 
 # Create v1 router
 api_router = APIRouter()
@@ -20,4 +20,9 @@ api_router.include_router(
 api_router.include_router(
     models.router,
     tags=["models"],
+)
+
+api_router.include_router(
+    advanced.router,
+    tags=["advanced"],
 )
