@@ -1,0 +1,35 @@
+{
+  "experiments": [
+    {
+      "mxene_type": "Ti3C2",
+      "electrolyte": "3 M KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 1148.12,
+      "ssa_m2_g": 57.5,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": 5,
+      "current_density_a_g": null,
+      "cycling_stability": null,
+      "num_cycles": 4700,
+      "synthesis_method": "solve-thermal"
+    },
+    {
+      "mxene_type": "Ti3C2",
+      "electrolyte": "3 M KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 1315.06,
+      "ssa_m2_g": 57.5,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 1,
+      "cycling_stability": null,
+      "num_cycles": 4700,
+      "synthesis_method": "solve-thermal"
+    }
+  ],
+  "paper_title": "Design and fabrication of NdFeO3 adorned on MXene: a hybrid electrode for supercapacitor applications",
+  "paper_doi": "Design and fabrication of NdFeO3 adorned on MXene a hybrid electrode for supercapacitor applications",
+  "extraction_confidence": "High"
+}

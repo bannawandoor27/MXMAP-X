@@ -1,0 +1,49 @@
+{
+  "experiments": [
+    {
+      "mxene_type": "Ti3C2",
+      "electrolyte": "1 M LiOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 2270,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": 1,
+      "current_density_a_g": null,
+      "cycling_stability": null,
+      "num_cycles": null,
+      "synthesis_method": "microwave-assisted and sequential spin coating"
+    },
+    {
+      "mxene_type": "Ti3C2",
+      "electrolyte": "1 M LiOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 743,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": 10,
+      "current_density_a_g": null,
+      "cycling_stability": null,
+      "num_cycles": null,
+      "synthesis_method": "microwave-assisted and sequential spin coating"
+    },
+    {
+      "mxene_type": "Ti3C2",
+      "electrolyte": "1 M LiOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 280,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": 20,
+      "current_density_a_g": null,
+      "cycling_stability": 82.89,
+      "num_cycles": 5000,
+      "synthesis_method": "microwave-assisted and sequential spin coating"
+    }
+  ],
+  "paper_title": "Tailoring MXene/Nickel Cobalt Phosphate Composite for Enhanced Electrochromic and Supercapacitor Applications",
+  "paper_doi": "Tailoring MXene Nickel Cobalt Phosphate Composite for Enhanced Electrochromic and",
+  "extraction_confidence": "high"
+}

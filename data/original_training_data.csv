@@ -1,0 +1,194 @@
+mxene_type,terminations,electrolyte,electrolyte_concentration,thickness_um,deposition_method,annealing_temp_c,annealing_time_min,interlayer_spacing_nm,specific_surface_area_m2g,pore_volume_cm3g,optical_transmittance,sheet_resistance_ohm_sq,areal_capacitance_mf_cm2,esr_ohm,rate_capability_percent,cycle_life_cycles
+V2CTx,mixed,3 M KOH,0.0,0.0,Solvothermal,180.0,0.0,0.0,971.0,0.0,0.0,0.0,960.0,2.0,80.0,22661
+V2CTx,mixed,3 M KOH,0.0,0.0,Solvothermal,180.0,0.0,0.0,20.5,0.0,0.0,0.0,787.5,2.0,80.0,22661
+V2CTx,mixed,3 M KOH,0.0,0.0,Solvothermal,180.0,0.0,0.0,971.0,0.0,0.0,0.0,379.0,2.0,80.0,70981
+Ti3C2Tx,mixed,1 M H2SO4,0.0,0.0,MILD,50.0,0.0,0.0,20.5,0.0,0.0,0.0,320.0,2.0,80.0,100000
+Ti3C2Tx,mixed,1 M H2SO4,0.0,0.0,MILD,50.0,0.0,0.0,20.5,0.0,0.0,0.0,525.0,2.0,80.0,22661
+Ti3C2Tx,mixed,1 M H2SO4,0.0,0.0,MILD,50.0,0.0,0.0,20.5,0.0,0.0,0.0,416.0,2.0,80.0,22661
+Ti3C2Tx,mixed,1 M H2SO4,0.0,0.0,MILD,190.0,0.0,0.0,20.5,0.0,0.0,0.0,139.5,2.0,80.0,29590
+Ti3C2Tx,mixed,1 M H2SO4,0.0,0.0,MILD,190.0,0.0,0.0,20.5,0.0,0.0,0.0,117.0,2.0,80.0,22661
+Ti3C2Tx,mixed,PVA/H2SO4 gel,0.0,0.0,MILD,190.0,0.0,0.0,20.5,0.0,0.0,0.0,60.0,2.0,80.0,22661
+Ti3C2Tx,mixed,PVA/H2SO4 gel,0.0,0.0,MILD,190.0,0.0,0.0,20.5,0.0,0.0,0.0,50.0,2.0,80.0,22661
+Ti3C2Tx,mixed,PVA/H2SO4,0.0,0.0,MILD,190.0,0.0,0.0,20.5,0.0,0.0,0.0,2.4,2.0,80.0,73259
+Ti3C2Tx,mixed,PVA/H2SO4,0.0,0.0,MILD,190.0,0.0,0.0,20.5,0.0,0.0,0.0,379.0,2.0,80.0,43503
+Ti3C2Tx,mixed,PVA/H2SO4,0.0,0.0,MILD,190.0,0.0,0.0,20.5,0.0,0.0,0.0,379.0,2.0,80.0,7756
+Ti3C2Tx,mixed,6 M KOH,0.0,0.0,Hydrothermal,140.0,0.0,0.0,65.0,0.0,0.0,0.0,624.45,2.0,80.0,100000
+Ti3C2Tx,mixed,PVA/KOH gel,0.0,0.0,Hydrothermal,140.0,0.0,0.0,20.5,0.0,0.0,0.0,829.6500000000001,2.0,80.0,100000
+Ti3C2Tx,mixed,6 M KOH,0.0,0.0,Hydrothermal,140.0,0.0,0.0,20.5,0.0,0.0,0.0,502.5,2.0,80.0,22661
+Ti3C2Tx,mixed,6 mol/L KOH,0.0,0.0,Electrostatic self-assembly,180.0,0.0,0.0,20.5,0.0,0.0,0.0,2165.3999999999996,2.0,80.0,20486
+Ti3C2Tx,mixed,6 mol/L KOH,0.0,0.0,Electrostatic self-assembly,180.0,0.0,0.0,20.5,0.0,0.0,0.0,1856.3999999999999,2.0,80.0,22661
+Ti3C2Tx,mixed,6 mol/L KOH,0.0,0.0,Electrostatic self-assembly,180.0,0.0,0.0,20.5,0.0,0.0,0.0,1783.3500000000001,2.0,80.0,22661
+Ti3C2Tx,mixed,6 mol/L KOH,0.0,0.0,LiF/HCl etching,50.0,0.0,0.0,20.5,0.0,0.0,0.0,578.55,2.0,80.0,4604
+Ti3C2Tx,mixed,6 mol/L KOH,0.0,0.0,Asymmetric Supercapacitor Assembly,190.0,0.0,0.0,20.5,0.0,0.0,0.0,224.85000000000002,2.0,80.0,11852
+Ti3C2Tx,mixed,1 M KOH,0.0,0.0,"Selective etching of Ti3AlC2 with HF, DMSO intercalation, and weak sonication",190.0,0.0,0.0,10.0,0.0,0.0,0.0,379.0,2.0,80.0,30430
+Ti3C2Tx,mixed,1 M KOH,0.0,0.0,Hydrothermal method to grow Ni(OH)2 on Ti3C2Tx followed by thermal annealing at 400 C for 1 h to form Ni-dMXNC,400.0,0.0,0.0,77.5,0.0,0.0,0.0,379.0,2.0,80.0,3178
+Ti3C2Tx,mixed,1 M KOH,0.0,0.0,Assembly of asymmetric supercapacitor (ASC) using Ni-dMXNC as positive electrode and Ti3C2Tx MXene as negative electrode,190.0,0.0,0.0,20.5,0.0,0.0,0.0,379.0,2.0,80.0,3410
+Ti3C2,mixed,6 M KOH,0.0,0.0,solvothermal,190.0,0.0,0.0,20.5,0.0,0.0,0.0,350.0,2.0,80.0,22661
+Ti3C2,mixed,6 M KOH,0.0,0.0,solvothermal,190.0,0.0,0.0,20.5,0.0,0.0,0.0,3300.0,2.0,80.0,4790
+Ti3C2,mixed,6 M KOH,0.0,0.0,solvothermal,190.0,0.0,0.0,20.5,0.0,0.0,0.0,1350.0,2.0,80.0,22661
+Ti3C2,mixed,PAAm-KOH hydrogel,0.0,0.0,solvothermal,190.0,0.0,0.0,20.5,0.0,0.0,0.0,335.0,2.0,80.0,6256
+Ti3C2,mixed,3 M KOH,0.0,0.0,solve-thermal,190.0,0.0,0.0,57.5,0.0,0.0,0.0,1722.1799999999998,2.0,80.0,22661
+Ti3C2,mixed,3 M KOH,0.0,0.0,solve-thermal,190.0,0.0,0.0,57.5,0.0,0.0,0.0,1972.59,2.0,80.0,22661
+V2CTx,mixed,1 M H2SO4,0.0,0.0,hydrothermal,190.0,0.0,0.0,20.5,0.0,0.0,0.0,889.3499999999999,2.0,80.0,22661
+Ti3C2,mixed,3 M H2SO4,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,2414.25,2.0,80.0,22661
+MXene,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,409.04999999999995,2.0,80.0,22661
+MXene,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,669.27,2.0,80.0,22661
+MXene,mixed,6 M KOH,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,234.0,2.0,80.0,22661
+Ti3C2Tx,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,622.5,2.0,80.0,38122
+MXene,mixed,,0.0,0.0,photochemical,190.0,0.0,0.0,20.5,0.0,0.0,0.0,736.5,2.0,80.0,22661
+MXene,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,862.5,2.0,80.0,22661
+MXene,mixed,,0.0,0.0,ammonium salt decomposition,350.0,0.0,0.0,20.5,0.0,0.0,0.0,673.5,2.0,80.0,22661
+MXene,mixed,1 M ZnSO4,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,371.85,2.0,80.0,22661
+MXene,mixed,3 M H2SO4,0.0,0.0,heat treatment,190.0,0.0,0.0,20.5,0.0,0.0,0.0,449.28,2.0,80.0,22661
+MXene,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,2773.5,2.0,80.0,22661
+MXene,mixed,1 M H2SO4,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,510.0,2.0,80.0,100000
+MXene,mixed,1 M H2SO4,0.0,0.0,ammonia annealing,190.0,0.0,0.0,20.5,0.0,0.0,0.0,288.0,2.0,80.0,22661
+V4C3Tx,mixed,,0.0,0.0,ammonia annealing,350.0,0.0,0.0,20.5,0.0,0.0,0.0,315.0,2.0,80.0,22661
+MXene,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,399.75,2.0,80.0,22661
+MXene,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,1920.0,2.0,80.0,22661
+MXene,mixed,H2SO4,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,694.5,2.0,80.0,23121
+MXene,mixed,6 M KOH,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,370.5,2.0,80.0,22661
+MXene,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,490.5,2.0,80.0,22661
+MXene,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,285.0,2.0,80.0,22661
+MXene,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,627.5999999999999,2.0,80.0,22661
+MXene,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,124.19999999999999,2.0,80.0,22661
+MXene,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,390.0,2.0,80.0,22661
+MXene,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,498.0,2.0,80.0,100000
+MXene,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,375.0,2.0,80.0,22661
+MXene,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,225.495,2.0,80.0,22661
+MXene,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,222.0,2.0,80.0,22661
+MXene,mixed,KNO3,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,117.0,2.0,80.0,55274
+MXene,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,685.5,2.0,80.0,22661
+MXene,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,250.79999999999998,2.0,80.0,22661
+Ti3C2Tx,mixed,1 M H2SO4,0.0,0.0,,400.0,0.0,0.0,20.5,0.0,0.0,0.0,742.5,2.0,80.0,66271
+MXene,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,712.5,2.0,80.0,22661
+Ti3C2Tx,mixed,1 M H2SO4,0.0,0.0,HF etching,190.0,0.0,0.0,20.5,0.0,0.0,0.0,51.0,2.0,80.0,22661
+N-Ti3C2Tx,mixed,1 M H2SO4,0.0,0.0,HF etching and ammonia annealing,200.0,0.0,0.0,20.5,0.0,0.0,0.0,288.0,2.0,80.0,26761
+N-Ti3C2Tx,mixed,1 M H2SO4,0.0,0.0,HF etching and ammonia annealing,200.0,0.0,0.0,20.5,0.0,0.0,0.0,192.0,2.0,80.0,22661
+N-Ti3C2Tx,mixed,1 M H2SO4,0.0,0.0,HF etching and ammonia annealing,300.0,0.0,0.0,20.5,0.0,0.0,0.0,67.5,2.0,80.0,22661
+N-Ti3C2Tx,mixed,1 M H2SO4,0.0,0.0,HF etching and ammonia annealing,500.0,0.0,0.0,20.5,0.0,0.0,0.0,30.0,2.0,80.0,22661
+N-Ti3C2Tx,mixed,1 M H2SO4,0.0,0.0,HF etching and ammonia annealing,700.0,0.0,0.0,20.5,0.0,0.0,0.0,15.0,2.0,80.0,22661
+Ti3C2Tx,mixed,1 M MgSO4,0.0,0.0,HF etching,190.0,0.0,0.0,20.5,0.0,0.0,0.0,78.0,2.0,80.0,22661
+N-Ti3C2Tx,mixed,1 M MgSO4,0.0,0.0,HF etching and ammonia annealing,200.0,0.0,0.0,20.5,0.0,0.0,0.0,123.0,2.0,80.0,22661
+N-Ti3C2Tx,mixed,1 M MgSO4,0.0,0.0,HF etching and ammonia annealing,300.0,0.0,0.0,20.5,0.0,0.0,0.0,96.0,2.0,80.0,22661
+N-Ti3C2Tx,mixed,1 M MgSO4,0.0,0.0,HF etching and ammonia annealing,500.0,0.0,0.0,20.5,0.0,0.0,0.0,15.0,2.0,80.0,22661
+N-Ti3C2Tx,mixed,1 M MgSO4,0.0,0.0,HF etching and ammonia annealing,700.0,0.0,0.0,20.5,0.0,0.0,0.0,19.5,2.0,80.0,22661
+Ti3C2Tx,mixed,1 M H2SO4,0.0,0.0,Electrospinning and carbonization,190.0,0.0,0.0,20.5,0.0,0.0,0.0,205.0,2.0,80.0,22661
+Ti3C2Tx,mixed,1 M H2SO4,0.0,0.0,Electrospinning and carbonization,800.0,0.0,0.0,20.5,0.0,0.0,0.0,239.0,2.0,80.0,22661
+Ti3C2Tx,mixed,1 M H2SO4,0.0,0.0,Electrospinning and carbonization,190.0,0.0,0.0,20.5,0.0,0.0,0.0,244.0,2.0,80.0,22661
+ZnO QDs/Ti3C2Tx,mixed,1.5 M Na2SO4,0.0,0.0,electrostatic self-assembly,190.0,0.0,0.0,252.991,0.0,0.0,0.0,457.5,2.0,80.0,34196
+Ti3C2Tx,mixed,1.5 M Na2SO4,0.0,0.0,LiF and HCl etching,190.0,0.0,0.0,42.73,0.0,0.0,0.0,188.805,2.0,80.0,22661
+ZnO QDs/Ti3C2Tx,mixed,1 M H2SO4,0.0,0.0,electrostatic self-assembly,190.0,0.0,0.0,20.5,0.0,0.0,0.0,891.0,2.0,80.0,22661
+ZnO QDs/Ti3C2Tx,mixed,PVA-Na2SO4 gel,0.0,0.0,electrostatic self-assembly,190.0,0.0,0.0,20.5,0.0,0.0,0.0,61.5,2.0,80.0,16443
+ZnO QDs/Ti3C2Tx (Zn1M3),mixed,1.5 M Na2SO4,0.0,0.0,electrostatic self-assembly,190.0,0.0,0.0,20.5,0.0,0.0,0.0,525.0,2.0,80.0,22661
+ZnO QDs/Ti3C2Tx (Zn2M3),mixed,1.5 M Na2SO4,0.0,0.0,electrostatic self-assembly,190.0,0.0,0.0,20.5,0.0,0.0,0.0,405.0,2.0,80.0,22661
+ZnO QDs/Ti3C2Tx (Zn3M3),mixed,1.5 M Na2SO4,0.0,0.0,electrostatic self-assembly,190.0,0.0,0.0,20.5,0.0,0.0,0.0,264.0,2.0,80.0,22661
+MgV2O6,mixed,2M KOH,0.0,0.0,hydrothermal,600.0,0.0,0.0,16.65,0.0,0.0,0.0,736.5,2.0,80.0,21638
+MgV2O6/Ti3C2,mixed,2M KOH,0.0,0.0,hydrothermal followed by sonication,600.0,0.0,0.0,22.13,0.0,0.0,0.0,1182.0,2.0,80.0,29077
+MgV2O6/Ti3C2//AC,mixed,2M KOH,0.0,0.0,aqueous hybrid supercapacitor assembly,190.0,0.0,0.0,20.5,0.0,0.0,0.0,200.10000000000002,2.0,80.0,15374
+NiFe-LDH/MXene,mixed,1M KOH,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,815.115,2.0,80.0,1916
+MoO3/MXene,mixed,2M KOH,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,842.46,2.0,80.0,4005
+Ti3C2Tx/GNPs (20 wt%),mixed,1 M H2SO4,0.0,0.0,Mixed-acid method,190.0,0.0,0.0,14.25,0.0,0.0,0.0,339.9,2.0,80.0,6487
+Ti3C2Tx/GNPs (20 wt%),mixed,1 M H2SO4,0.0,0.0,Mixed-acid method,190.0,0.0,0.0,14.25,0.0,0.0,0.0,216.60000000000002,2.0,80.0,22661
+Ti3C2Tx,mixed,KOH,0.0,0.0,HF etching,190.0,0.0,0.0,20.5,0.0,0.0,0.0,138.0,2.0,80.0,22661
+Ti3C2Tx,mixed,Na2SO4,0.0,0.0,HF etching,190.0,0.0,0.0,20.5,0.0,0.0,0.0,112.5,2.0,80.0,22661
+Ti3C2Tx,mixed,KOH,0.0,0.0,HF etching,190.0,0.0,0.0,20.5,0.0,0.0,0.0,76.5,2.0,80.0,22661
+Ti3C2Tx,mixed,NaCl,0.0,0.0,HF etching,190.0,0.0,0.0,20.5,0.0,0.0,0.0,100.5,2.0,80.0,22661
+Ti3C2Tx,mixed,Li2SO4,0.0,0.0,HF etching,190.0,0.0,0.0,20.5,0.0,0.0,0.0,270.0,2.0,80.0,22661
+Ti3C2Tx,mixed,K2SO4,0.0,0.0,HF etching,190.0,0.0,0.0,20.5,0.0,0.0,0.0,109.5,2.0,80.0,22661
+Ti3C2Tx/SCNT,mixed,,0.0,0.0,self-assembled,190.0,0.0,0.0,20.5,0.0,0.0,0.0,610.0,2.0,80.0,22661
+rGO/Ti3C2,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,171.4,2.0,80.0,22661
+Ti3C2Tx/CNT (BMX yarn),mixed,,0.0,0.0,biscrolling,190.0,0.0,0.0,20.5,0.0,0.0,0.0,798.0,2.0,80.0,100000
+Nitrogen-doped Nb2CTx/rGO,mixed,H2SO4,0.0,0.0,supercritical fluid method,190.0,0.0,0.0,20.5,0.0,0.0,0.0,1224.0,2.0,80.0,22661
+Ti3C2/MnO2,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,377.0,2.0,80.0,22661
+Ti3C2Tx MXene/NiCo2O4 nanosphere,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,1537.5,2.0,80.0,5692
+d-Ti3C2/NF,mixed,KOH,0.0,0.0,electrostatic self-assembly,190.0,0.0,0.0,20.5,0.0,0.0,0.0,981.0,2.0,80.0,5173
+borophene/Ti3C2Tx,mixed,,0.0,0.0,electrophoretic deposition,190.0,0.0,0.0,20.5,0.0,0.0,0.0,940.0500000000001,2.0,80.0,22661
+carbon dot/carboxylated CNT/Ti3C2Tx MXene,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,1162.6,2.0,80.0,100000
+Mo2Ti2C3Tx,mixed,H2SO4,0.0,0.0,hydrothermal approach,190.0,0.0,0.0,20.5,0.0,0.0,0.0,162.75,2.0,80.0,22661
+MXene/graphene nanoplatelets,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,339.9,2.0,80.0,6487
+Ti3C2Tx,mixed,NaCl-PVA,0.0,0.0,vacuum filtration,190.0,0.0,0.0,20.5,0.0,0.0,0.0,168.0,2.0,80.0,21751
+MXene/GNP composite,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,339.9,2.0,80.0,22661
+MXene-N,mixed,1 M H2SO4,0.0,0.0,LiF-HCl etching followed by liquid ammonia and lithium metal treatment,190.0,0.0,0.0,20.5,0.0,0.0,0.0,849.0,2.0,80.0,22661
+MXene-N,mixed,1 M H2SO4,0.0,0.0,LiF-HCl etching followed by liquid ammonia and lithium metal treatment,190.0,0.0,0.0,20.5,0.0,0.0,0.0,882.0,2.0,80.0,22661
+MXene-N,mixed,1 M H2SO4,0.0,0.0,LiF-HCl etching followed by liquid ammonia and lithium metal treatment,190.0,0.0,0.0,20.5,0.0,0.0,0.0,822.0,2.0,80.0,22661
+MXene-N,mixed,1 M H2SO4,0.0,0.0,LiF-HCl etching followed by liquid ammonia and lithium metal treatment,190.0,0.0,0.0,20.5,0.0,0.0,0.0,787.5,2.0,80.0,22661
+MXene-N,mixed,1 M H2SO4,0.0,0.0,LiF-HCl etching followed by liquid ammonia and lithium metal treatment,190.0,0.0,0.0,20.5,0.0,0.0,0.0,724.5,2.0,80.0,22661
+MXene-N,mixed,1 M H2SO4,0.0,0.0,LiF-HCl etching followed by liquid ammonia and lithium metal treatment,190.0,0.0,0.0,20.5,0.0,0.0,0.0,558.0,2.0,80.0,19148
+Ti3C2Tx MXene,mixed,1 M H2SO4,0.0,0.0,LiF-HCl method,190.0,0.0,0.0,20.5,0.0,0.0,0.0,421.5,2.0,80.0,22661
+V2C,mixed,1 M H2SO4,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,730.5,2.0,80.0,22661
+V2C,mixed,1 M MgSO4,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,337.5,2.0,80.0,22661
+V2C,mixed,1 M KOH,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,276.0,2.0,80.0,22661
+Ti2NTX,mixed,MgSO4 aqueous,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,1.35,2.0,80.0,22661
+Ti3C2Tx (nanoparticle and nanosheet mixture),mixed,,0.0,0.0,HF etching and HCl + LiF etching,190.0,0.0,0.0,20.5,0.0,0.0,0.0,558.0,2.0,80.0,21751
+Ti3C2Tx macroporous,mixed,1 M H2SO4,0.0,0.0,PMMA microspheres templating,190.0,0.0,0.0,20.5,0.0,0.0,0.0,465.0,2.0,80.0,22661
+rGo/Ti3C2,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,292.5,2.0,80.0,100000
+rGO/Ti3C2,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,381.0,2.0,80.0,22661
+Co(OH)2/Ti3C2Tx,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,229.5,2.0,80.0,22202
+Ti3C2/Ni-Co-Al-layered double hydroxide,mixed,KOH-PVA gel,0.0,0.0,Liquid-phase cofeeding,190.0,0.0,0.0,20.5,0.0,0.0,0.0,1122.3000000000002,2.0,80.0,22661
+Ti3C2Tx/ZnMnNi LDH,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,3097.5,2.0,80.0,100000
+MXene/Fe3O4/MXene sandwich,mixed,1 M Li2SO4 aqueous,0.0,0.0,Laser crystallization,190.0,0.0,0.0,20.5,0.0,0.0,0.0,46.4,2.0,80.0,22661
+MnO2 nanorods/MXene/carbon cloth,mixed,PVA and potassium hydroxide gel,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,766.8,2.0,80.0,22661
+CoFe2O4 nanorod/Ti3C2Tx,mixed,LiCl,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,356.4,2.0,80.0,17771
+PPy/MXene on polyester fabric,mixed,,0.0,0.0,Self-assembly,190.0,0.0,0.0,20.5,0.0,0.0,0.0,1295.0,2.0,80.0,22661
+Ti3C2/polyaniline nanotubes,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,894.9000000000001,2.0,80.0,20488
+TiO2/TiN/Ti3C2Tx,mixed,,0.0,0.0,Hydrothermal method,190.0,0.0,0.0,20.5,0.0,0.0,0.0,541.5,2.0,80.0,22661
+Sodium ascorbate-caped Ti3C2Tx,mixed,,0.0,0.0,Ligand capping,190.0,0.0,0.0,20.5,0.0,0.0,0.0,108.1,2.0,80.0,22661
+Ti3C2Tx,mixed,,0.0,0.0,Laser writing,190.0,0.0,0.0,20.5,0.0,0.0,0.0,15.03,2.0,80.0,22661
+Ti3C2Tx,mixed,1 M H2SO4,0.0,0.0,HF etching,80.0,0.0,0.0,3.85,0.0,0.0,0.0,109.5,2.0,80.0,15899
+ZnO-decorated Ti3C2Tx,mixed,1 M H2SO4,0.0,0.0,Hydrothermal,180.0,0.0,0.0,6.49,0.0,0.0,0.0,210.0,2.0,80.0,94287
+ZnO-decorated Ti3C2Tx,mixed,1 M H2SO4,0.0,0.0,Hydrothermal,180.0,0.0,0.0,6.49,0.0,0.0,0.0,48.0,2.0,80.0,3786
+Ta4C3,mixed,0.1 M H2SO4,0.0,0.0,HF etching,190.0,0.0,0.0,6.599,0.0,0.0,0.0,721.5,2.0,80.0,3829
+Ta4C3,mixed,0.1 M H2SO4,0.0,0.0,HF etching,190.0,0.0,0.0,6.599,0.0,0.0,0.0,180.0,2.0,80.0,22661
+Ti3C2,mixed,1 M LiOH,0.0,0.0,microwave-assisted and sequential spin coating,190.0,0.0,0.0,20.5,0.0,0.0,0.0,3405.0,2.0,80.0,22661
+Ti3C2,mixed,1 M LiOH,0.0,0.0,microwave-assisted and sequential spin coating,190.0,0.0,0.0,20.5,0.0,0.0,0.0,1114.5,2.0,80.0,22661
+Ti3C2,mixed,1 M LiOH,0.0,0.0,microwave-assisted and sequential spin coating,190.0,0.0,0.0,20.5,0.0,0.0,0.0,420.0,2.0,80.0,5945
+Ti3C2Tx,mixed,,0.0,0.0,spray coating,190.0,0.0,0.0,20.5,0.0,0.0,0.0,27.0,2.0,80.0,100000
+MXene,mixed,,0.0,0.0,vacuum-assisted filtration and laser engraving,190.0,0.0,0.0,20.5,0.0,0.0,0.0,27.29,2.0,80.0,22661
+MXene/graphene hybrid,mixed,,0.0,0.0,wet spinning,190.0,0.0,0.0,20.5,0.0,0.0,0.0,372.2,2.0,80.0,22661
+Ti3C2,mixed,,0.0,0.0,dip-coating and mechanical etching,190.0,0.0,0.0,20.5,0.0,0.0,0.0,0.283,2.0,80.0,22661
+MXene,mixed,,0.0,0.0,freeze-drying,190.0,0.0,0.0,20.5,0.0,0.0,0.0,2100.0,2.0,80.0,21179
+MXene/EP,mixed,,0.0,0.0,electropolymerization,190.0,0.0,0.0,20.5,0.0,0.0,0.0,69.5,2.0,80.0,22661
+MXene,mixed,,0.0,0.0,screen printing,190.0,0.0,0.0,20.5,0.0,0.0,0.0,1100.0,2.0,80.0,22661
+MXene/CNT,mixed,,0.0,0.0,FIB technique,190.0,0.0,0.0,20.5,0.0,0.0,0.0,317.0,2.0,80.0,22661
+MXene-10,mixed,,0.0,0.0,vacuum filtration,190.0,0.0,0.0,20.5,0.0,0.0,0.0,558.0,2.0,80.0,21751
+MXene/BC composite,mixed,,0.0,0.0,laser engraving,190.0,0.0,0.0,20.5,0.0,0.0,0.0,111.5,2.0,80.0,22661
+MXene/SiC heterostructure,mixed,,0.0,0.0,ionization bombardment,190.0,0.0,0.0,20.5,0.0,0.0,0.0,97.8,2.0,80.0,21179
+MXene/MPF composite,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,489.15000000000003,2.0,80.0,22661
+MXene/CNF/PC composite,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,143.0,2.0,80.0,22661
+MXene/BC@PPy,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,388.0,2.0,80.0,100000
+MXene and V2O5,mixed,PAM hydrogel,0.0,0.0,electrodeposition,190.0,0.0,0.0,20.5,0.0,0.0,0.0,129.0,2.0,80.0,8537
+MXene (crumpled),mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,185.0,2.0,80.0,22661
+MXene,mixed,,0.0,0.0,3D printing,190.0,0.0,0.0,20.5,0.0,0.0,0.0,2337.0,2.0,80.0,31210
+MXene/CNT,mixed,,0.0,0.0,directional freeze drying,190.0,0.0,0.0,20.5,0.0,0.0,0.0,631.5,2.0,80.0,22661
+MXene/graphene,mixed,,0.0,0.0,self-assembly with Zn template,190.0,0.0,0.0,20.5,0.0,0.0,0.0,589.5,2.0,80.0,22661
+Ni-MOF/MXene,mixed,,0.0,0.0,folic acid-assisted solvothermal,190.0,0.0,0.0,20.5,0.0,0.0,0.0,114.285,2.0,80.0,22661
+MXene/ZIF-67/CoV2O6,mixed,,0.0,0.0,in-situ growth/ion-exchange,190.0,0.0,0.0,20.5,0.0,0.0,0.0,428.25,2.0,80.0,22661
+MXene/NiCo ZIF-67,mixed,,0.0,0.0,alkali treatment,190.0,0.0,0.0,20.5,0.0,0.0,0.0,1315.5,2.0,80.0,96529
+MXene/FeNi LDH,mixed,,0.0,0.0,hydrothermal,190.0,0.0,0.0,20.5,0.0,0.0,0.0,379.0,2.0,80.0,17455
+MXene/trimetallic LDH,mixed,,0.0,0.0,electrostatic self-assembly,190.0,0.0,0.0,20.5,0.0,0.0,0.0,1359.0,2.0,80.0,22661
+ternary LDH-MXene,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,1654.3500000000001,2.0,80.0,22661
+MXene-COF,mixed,,0.0,0.0,microfluid-assisted,190.0,0.0,0.0,20.5,0.0,0.0,0.0,1180.5,2.0,80.0,22661
+COF/MXene,mixed,,0.0,0.0,cation-driven self-assembly,190.0,0.0,0.0,20.5,0.0,0.0,0.0,585.0,2.0,80.0,22661
+COF-MXene heterostructure,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,435.0,2.0,80.0,22661
+MXene/PEDOT:PSS,mixed,PVA-H3PO4 gel,0.0,0.0,spin coating,190.0,0.0,0.0,20.5,0.0,0.0,0.0,3.1,2.0,80.0,22661
+MXene/PEDOT:PSS (tartaric acid),mixed,,0.0,0.0,spray coating,190.0,0.0,0.0,20.5,0.0,0.0,0.0,4.272,2.0,80.0,22661
+PANI-MXene,mixed,,0.0,0.0,self-assembly,190.0,0.0,0.0,20.5,0.0,0.0,0.0,968.5500000000001,2.0,80.0,100000
+PVA/BC/MXene composite,mixed,,0.0,0.0,direction freeze drying,190.0,0.0,0.0,20.5,0.0,0.0,0.0,3948.0,2.0,80.0,100000
+MXene-NiCo LDH,mixed,,0.0,0.0,electrostatic layer-by-layer assembly,190.0,0.0,0.0,20.5,0.0,0.0,0.0,136900.0,2.0,80.0,22661
+MXene/bentonite,mixed,,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,22.8,2.0,80.0,22661
+MXene,mixed,PU-encapsulated,0.0,0.0,spray coating and laser engraving,190.0,0.0,0.0,20.5,0.0,0.0,0.0,73.6,2.0,80.0,8355
+MXene/SA/PVA,mixed,NaCl,0.0,0.0,,190.0,0.0,0.0,20.5,0.0,0.0,0.0,130.8,2.0,80.0,22661
+Ti3C2Tx,mixed,PVA-H2SO4 gel,0.0,0.0,thermal inkjet printing,190.0,0.0,0.0,20.5,0.0,0.0,0.0,294.0,2.0,80.0,100000
+Ti3C2Tx,mixed,,0.0,0.0,stamping,190.0,0.0,0.0,20.5,0.0,0.0,0.0,57.0,2.0,80.0,34291
+Ti3C2Tx (HF-etched),mixed,1M H2SO4,0.0,0.0,Meyer rod coating and laser scribing,190.0,0.0,0.0,20.5,0.0,0.0,0.0,6.2,2.0,80.0,22661
+Ti3C2Tx (clay-type),mixed,1M H2SO4,0.0,0.0,Meyer rod coating and laser scribing,190.0,0.0,0.0,20.5,0.0,0.0,0.0,25.0,2.0,80.0,22661
+MXene/BP composite,mixed,PVA-H2SO4 gel,0.0,0.0,self-assembly and laser engraving,190.0,0.0,0.0,20.5,0.0,0.0,0.0,672.645,2.0,80.0,25883
+N-doped MXene,mixed,PVA-H2SO4 gel,0.0,0.0,extrusion printing,190.0,0.0,0.0,20.5,0.0,0.0,0.0,70.1,2.0,80.0,18733
+s-DWCNT/MXene,mixed,PVA-H2SO4 gel,0.0,0.0,FIB technique,190.0,0.0,0.0,20.5,0.0,0.0,0.0,317.0,2.0,80.0,22661
+EG:MXene composite,mixed,PVA/H3PO4 gel,0.0,0.0,spray coating,190.0,0.0,0.0,20.5,0.0,0.0,0.0,3.26,2.0,80.0,2811
+MXene,mixed,Water in LiBr,0.0,0.0,3D printing,190.0,0.0,0.0,20.5,0.0,0.0,0.0,4000.0,2.0,80.0,54662
+Ti2VC2,mixed,1M H2SO4,0.0,0.0,ultrasound-assisted,190.0,0.0,0.0,20.5,0.0,0.0,0.0,777.0,2.0,80.0,61496
+Surface functionalized MXene (MXene-C),mixed,,0.0,0.0,3D printing,190.0,0.0,0.0,20.5,0.0,0.0,0.0,68.0,2.0,80.0,73259
+V2NTx,mixed,3.5 M KOH,0.0,0.0,Selective etching of Al from V2AlN using LiF-HCl followed by DMSO delamination,190.0,0.0,0.0,20.5,0.0,0.0,0.0,169.2,2.0,80.0,54662
+V2NTx,mixed,3.5 M KOH,0.0,0.0,Selective etching of Al from V2AlN using LiF-HCl followed by DMSO delamination,190.0,0.0,0.0,20.5,0.0,0.0,0.0,37.95,2.0,80.0,22661

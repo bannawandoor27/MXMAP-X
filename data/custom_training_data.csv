@@ -1,0 +1,2 @@
+mxene_type,terminations,electrolyte,electrolyte_concentration,thickness_um,deposition_method,annealing_temp_c,annealing_time_min,interlayer_spacing_nm,specific_surface_area_m2g,pore_volume_cm3g,optical_transmittance,sheet_resistance_ohm_sq,areal_capacitance_mf_cm2,esr_ohm,rate_capability_percent,cycle_life_cycles,source,notes
+Ti3C2Tx,O,H2SO4,1.0,5.0,vacuum_filtration,120.0,60.0,1.2,98.5,0.12,75.0,45.0,350.5,2.5,85.0,10000,lab_experiment,Example data

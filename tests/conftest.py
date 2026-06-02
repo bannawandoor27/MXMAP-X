@@ -2,17 +2,23 @@
 
 import pytest
 from typing import AsyncGenerator
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy.pool import StaticPool
 from app.main import app
 from app.db.session import Base
 from app.core.dependencies import get_db
 
-# Test database URL
-TEST_DATABASE_URL = "postgresql+asyncpg://mxmap_user:mxmap_password@localhost:5432/mxmap_test_db"
+# Test database URL - use in-memory SQLite so no server is needed
+TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
-# Create test engine
-test_engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+# Create test engine with StaticPool for in-memory SQLite (single connection shared)
+test_engine = create_async_engine(
+    TEST_DATABASE_URL,
+    echo=False,
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+)
 test_session_maker = async_sessionmaker(
     test_engine,
     class_=AsyncSession,
@@ -41,13 +47,15 @@ async def db_session(setup_database) -> AsyncGenerator[AsyncSession, None]:
 @pytest.fixture
 async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
     """Get test client with database override."""
-    
+
     async def override_get_db() -> AsyncGenerator[AsyncSession, None]:
         yield db_session
-    
+
     app.dependency_overrides[get_db] = override_get_db
-    
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
         yield ac
-    
+
     app.dependency_overrides.clear()

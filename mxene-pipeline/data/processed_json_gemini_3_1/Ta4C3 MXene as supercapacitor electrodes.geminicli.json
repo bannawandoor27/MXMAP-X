@@ -1,0 +1,35 @@
+{
+  "experiments": [
+    {
+      "mxene_type": "Ta4C3",
+      "electrolyte": "0.1 M H2SO4",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 481,
+      "ssa_m2_g": 6.599,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": 5,
+      "current_density_a_g": null,
+      "cycling_stability": 89,
+      "num_cycles": 2000,
+      "synthesis_method": "HF etching"
+    },
+    {
+      "mxene_type": "Ta4C3",
+      "electrolyte": "0.1 M H2SO4",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 120,
+      "ssa_m2_g": 6.599,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": null,
+      "cycling_stability": null,
+      "num_cycles": null,
+      "synthesis_method": "HF etching"
+    }
+  ],
+  "paper_title": "Ta4C3 MXene as supercapacitor electrodes",
+  "paper_doi": "Ta4C3 MXene as supercapacitor electrodes",
+  "extraction_confidence": "high"
+}

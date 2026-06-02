@@ -1,0 +1,35 @@
+{
+  "experiments": [
+    {
+      "mxene_type": "NiFe-LDH/MXene",
+      "electrolyte": "1M KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 543.41,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 2.0,
+      "cycling_stability": 55.87,
+      "num_cycles": 5000,
+      "synthesis_method": null
+    },
+    {
+      "mxene_type": "MoO3/MXene",
+      "electrolyte": "2M KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 561.64,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": 5.0,
+      "current_density_a_g": null,
+      "cycling_stability": 87.0,
+      "num_cycles": 2500,
+      "synthesis_method": null
+    }
+  ],
+  "paper_title": "Machine learning-guided optimization, predictive modeling, and experimental validation of MXene-based supercapacitors",
+  "paper_doi": "Machine learning-guided optimization, predictive modeling, and experimental validation of MXene-based supercapacitors",
+  "extraction_confidence": "high"
+}

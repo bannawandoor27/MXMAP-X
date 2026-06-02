@@ -14,9 +14,6 @@ from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 
 from app.ml.xgboost_model import XGBoostPredictor
 from app.ml.feature_engineering import FeatureEngineer
-from app.db.session import async_session_maker
-from app.models.database import TrainingMetadata
-from sqlalchemy import select
 
 
 class ModelTrainer:
@@ -26,7 +23,7 @@ class ModelTrainer:
 
     def __init__(
         self,
-        data_path: str = "data/synthetic_training_data.csv",
+        data_path: str = "data/original_training_data.csv",
         config_path: str = "config/model_config.yaml",
         model_dir: str = "models/cache",
     ) -> None:
@@ -258,42 +255,52 @@ class ModelTrainer:
         print("✓ Model saved")
 
     async def save_metadata_to_db(self, predictor: XGBoostPredictor) -> None:
-        """Save training metadata to database."""
+        """Save training metadata to database (optional — skips if DB unavailable)."""
+        try:
+            from app.db.session import async_session_maker
+            from app.models.database import TrainingMetadata
+            from sqlalchemy import select
+        except Exception as e:
+            print(f"\n⚠ DB dependencies or config missing ({e}). Skipping metadata save.")
+            return
+
         print("\nSaving metadata to database...")
-        
-        async with async_session_maker() as session:
-            # Deactivate existing models
-            result = await session.execute(select(TrainingMetadata))
-            existing_models = result.scalars().all()
-            for model in existing_models:
-                model.is_active = 0
+        try:
+            async with async_session_maker() as session:
+                # Deactivate existing models
+                result = await session.execute(select(TrainingMetadata))
+                existing_models = result.scalars().all()
+                for model in existing_models:
+                    model.is_active = 0
+                
+                # Create new metadata entry
+                metrics = predictor.metrics
+                metadata = TrainingMetadata(
+                    model_version=predictor.model_version,
+                    model_type="xgboost",
+                    train_r2_capacitance=metrics.get("capacitance", {}).get("r2"),
+                    train_r2_esr=metrics.get("esr", {}).get("r2"),
+                    train_r2_rate_capability=metrics.get("rate_capability", {}).get("r2"),
+                    train_r2_cycle_life=metrics.get("cycle_life", {}).get("r2"),
+                    test_r2_capacitance=metrics.get("capacitance", {}).get("r2"),
+                    test_r2_esr=metrics.get("esr", {}).get("r2"),
+                    test_r2_rate_capability=metrics.get("rate_capability", {}).get("r2"),
+                    test_r2_cycle_life=metrics.get("cycle_life", {}).get("r2"),
+                    train_rmse_capacitance=metrics.get("capacitance", {}).get("rmse"),
+                    test_rmse_capacitance=metrics.get("capacitance", {}).get("rmse"),
+                    training_samples=len(self.results.get("X_train", [])),
+                    test_samples=len(self.results.get("X_test", [])),
+                    hyperparameters=str(self.config.get("hyperparameters", {})),
+                    trained_at=datetime.utcnow(),
+                    is_active=1,
+                )
+                
+                session.add(metadata)
+                await session.commit()
             
-            # Create new metadata entry
-            metrics = predictor.metrics
-            metadata = TrainingMetadata(
-                model_version=predictor.model_version,
-                model_type="xgboost",
-                train_r2_capacitance=metrics.get("capacitance", {}).get("r2"),
-                train_r2_esr=metrics.get("esr", {}).get("r2"),
-                train_r2_rate_capability=metrics.get("rate_capability", {}).get("r2"),
-                train_r2_cycle_life=metrics.get("cycle_life", {}).get("r2"),
-                test_r2_capacitance=metrics.get("capacitance", {}).get("r2"),
-                test_r2_esr=metrics.get("esr", {}).get("r2"),
-                test_r2_rate_capability=metrics.get("rate_capability", {}).get("r2"),
-                test_r2_cycle_life=metrics.get("cycle_life", {}).get("r2"),
-                train_rmse_capacitance=metrics.get("capacitance", {}).get("rmse"),
-                test_rmse_capacitance=metrics.get("capacitance", {}).get("rmse"),
-                training_samples=len(self.results.get("X_train", [])),
-                test_samples=len(self.results.get("X_test", [])),
-                hyperparameters=str(self.config.get("hyperparameters", {})),
-                trained_at=datetime.utcnow(),
-                is_active=1,
-            )
-            
-            session.add(metadata)
-            await session.commit()
-        
-        print("✓ Metadata saved to database")
+            print("✓ Metadata saved to database")
+        except Exception as e:
+            print(f"⚠ Could not save to DB: {e}")
 
     def print_summary(self, predictor: XGBoostPredictor) -> None:
         """Print training summary."""

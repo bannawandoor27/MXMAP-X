@@ -1,0 +1,49 @@
+{
+  "experiments": [
+    {
+      "mxene_type": "Ti3C2Tx",
+      "electrolyte": "1 M KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": null,
+      "ssa_m2_g": 10.0,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 5.0,
+      "cycling_stability": 96.4,
+      "num_cycles": 5000,
+      "synthesis_method": "Selective etching of Ti3AlC2 with HF, DMSO intercalation, and weak sonication"
+    },
+    {
+      "mxene_type": "Ti3C2Tx",
+      "electrolyte": "1 M KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": null,
+      "ssa_m2_g": 77.5,
+      "annealing_temperature_c": 400,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 5.0,
+      "cycling_stability": 70.4,
+      "num_cycles": 5000,
+      "synthesis_method": "Hydrothermal method to grow Ni(OH)2 on Ti3C2Tx followed by thermal annealing at 400 C for 1 h to form Ni-dMXNC"
+    },
+    {
+      "mxene_type": "Ti3C2Tx",
+      "electrolyte": "1 M KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": null,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 1.0,
+      "cycling_stability": 72.1,
+      "num_cycles": 5000,
+      "synthesis_method": "Assembly of asymmetric supercapacitor (ASC) using Ni-dMXNC as positive electrode and Ti3C2Tx MXene as negative electrode"
+    }
+  ],
+  "paper_title": "High volumetric energy density annealed-MXenenickel oxide/MXene asymmetric supercapacitor",
+  "paper_doi": "High volumetric energy density annealed-MXenenickel oxide-MXene asymmetric supercapacitor",
+  "extraction_confidence": "High"
+}

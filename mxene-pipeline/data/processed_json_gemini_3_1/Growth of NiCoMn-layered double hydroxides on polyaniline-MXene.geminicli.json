@@ -1,0 +1,49 @@
+{
+  "experiments": [
+    {
+      "mxene_type": "Ti3C2Tx",
+      "electrolyte": "6 M KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 416.3,
+      "ssa_m2_g": 65,
+      "annealing_temperature_c": 140,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 0.2,
+      "cycling_stability": 100,
+      "num_cycles": 10000,
+      "synthesis_method": "Hydrothermal"
+    },
+    {
+      "mxene_type": "Ti3C2Tx",
+      "electrolyte": "PVA/KOH gel",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 553.1,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": 140,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 0.2,
+      "cycling_stability": 100,
+      "num_cycles": 10000,
+      "synthesis_method": "Hydrothermal"
+    },
+    {
+      "mxene_type": "Ti3C2Tx",
+      "electrolyte": "6 M KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 335,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": 140,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 0.2,
+      "cycling_stability": null,
+      "num_cycles": null,
+      "synthesis_method": "Hydrothermal"
+    }
+  ],
+  "paper_title": "Growth of NiCoMn-layered double hydroxides on polyaniline/MXene matrix for high-performance supercapacitor anode materials",
+  "paper_doi": "Growth of NiCoMn-layered double hydroxides on polyaniline-MXene",
+  "extraction_confidence": "high"
+}

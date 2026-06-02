@@ -2,7 +2,7 @@
 
 import numpy as np
 from typing import Any
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from app.models.schemas import PredictionRequest, MXeneType, Termination, Electrolyte, DepositionMethod
 
 
@@ -31,20 +31,34 @@ class OptimizationCandidate:
 
 class MultiObjectiveOptimizer:
     """
-    Multi-objective optimization using NSGA-II inspired approach.
+    Multi-objective optimization using NSGA-II.
     
     Finds Pareto-optimal device designs that balance multiple objectives
     (e.g., high capacitance + low ESR + high cycle life).
     """
 
+    # Design-space constants
+    MXENE_TYPES = [e.value for e in MXeneType]
+    TERMINATIONS = [e.value for e in Termination]
+    ELECTROLYTES = [e.value for e in Electrolyte]
+    DEPOSITION_METHODS = [e.value for e in DepositionMethod]
+
+    # Continuous parameter bounds (name, min, max, is_optional)
+    CONTINUOUS_PARAMS = [
+        ("thickness_um",              1.0,   30.0,  False),
+        ("electrolyte_concentration", 0.5,   3.0,   True),
+        ("annealing_temp_c",          80.0,  200.0, True),
+        ("annealing_time_min",        30.0,  120.0, True),
+        ("interlayer_spacing_nm",     0.9,   1.8,   True),
+        ("specific_surface_area_m2g", 50.0,  150.0, True),
+        ("pore_volume_cm3g",          0.05,  0.25,  True),
+    ]
+
     def __init__(self, predictor: Any) -> None:
-        """
-        Initialize optimizer.
-        
-        Args:
-            predictor: Trained ML predictor
-        """
         self.predictor = predictor
+        self._rng = np.random.default_rng(42)
+
+    # ── public API ────────────────────────────────────────────────────────────
 
     async def optimize(
         self,
@@ -54,43 +68,166 @@ class MultiObjectiveOptimizer:
         generations: int = 50,
     ) -> list[OptimizationCandidate]:
         """
-        Perform multi-objective optimization.
-        
+        Run NSGA-II multi-objective optimization.
+
         Args:
-            objectives: List of optimization objectives
-            constraints: Design constraints (e.g., thickness range)
-            population_size: Number of candidates per generation
-            generations: Number of optimization iterations
-            
+            objectives: Optimization objectives
+            constraints: Design-space constraints
+            population_size: Individuals per generation
+            generations: Number of evolution iterations
+
         Returns:
-            List of Pareto-optimal candidates
+            Pareto-optimal candidates sorted by crowding distance
         """
-        # Generate initial population
+        # 1. Generate & evaluate initial population
         population = self._generate_initial_population(population_size, constraints)
-        
-        # Evaluate initial population
-        evaluated_pop = await self._evaluate_population(population, objectives)
-        
-        # Evolution loop (simplified for now - can be enhanced with genetic operators)
-        for gen in range(generations):
-            # For now, we'll use a grid search approach
-            # In production, implement proper genetic operators (crossover, mutation)
-            pass
-        
-        # Perform non-dominated sorting
-        pareto_fronts = self._non_dominated_sort(evaluated_pop)
-        
-        # Get Pareto-optimal solutions (first front)
-        pareto_optimal = pareto_fronts[0] if pareto_fronts else []
-        
-        # Calculate crowding distance for diversity
+        evaluated = await self._evaluate_population(population, objectives)
+
+        # 2. Evolution loop ─ real NSGA-II
+        for _gen in range(generations):
+            # a) Create offspring via selection + crossover + mutation
+            offspring_requests = self._create_offspring(
+                evaluated, population_size, constraints,
+            )
+
+            # b) Evaluate offspring
+            offspring_evaluated = await self._evaluate_population(
+                offspring_requests, objectives,
+            )
+
+            # c) Merge parents + offspring
+            combined = evaluated + offspring_evaluated
+
+            # d) Non-dominated sort on combined pool
+            fronts = self._non_dominated_sort(combined)
+
+            # e) Select next generation (fill up to population_size)
+            next_gen: list[OptimizationCandidate] = []
+            for front in fronts:
+                if len(next_gen) + len(front) <= population_size:
+                    next_gen.extend(front)
+                else:
+                    # Need only some from this front → pick by crowding distance
+                    self._calculate_crowding_distance(front)
+                    front.sort(key=lambda c: c.crowding_distance, reverse=True)
+                    remaining = population_size - len(next_gen)
+                    next_gen.extend(front[:remaining])
+                    break
+
+            evaluated = next_gen
+
+        # 3. Final sort & return Pareto front
+        fronts = self._non_dominated_sort(evaluated)
+        pareto_optimal = fronts[0] if fronts else []
+
         if pareto_optimal:
             self._calculate_crowding_distance(pareto_optimal)
-        
-        # Sort by crowding distance (prefer diverse solutions)
-        pareto_optimal.sort(key=lambda x: x.crowding_distance, reverse=True)
-        
+            pareto_optimal.sort(key=lambda c: c.crowding_distance, reverse=True)
+
         return pareto_optimal
+
+    # ── genetic operators ─────────────────────────────────────────────────────
+
+    def _create_offspring(
+        self,
+        parents: list[OptimizationCandidate],
+        n_offspring: int,
+        constraints: dict[str, Any] | None,
+    ) -> list[PredictionRequest]:
+        """Generate offspring via tournament selection, crossover, mutation."""
+        offspring: list[PredictionRequest] = []
+
+        while len(offspring) < n_offspring:
+            p1 = self._tournament_select(parents)
+            p2 = self._tournament_select(parents)
+            child = self._crossover(p1.request, p2.request)
+            child = self._mutate(child, constraints)
+            offspring.append(child)
+
+        return offspring[:n_offspring]
+
+    def _tournament_select(
+        self, pop: list[OptimizationCandidate], k: int = 3,
+    ) -> OptimizationCandidate:
+        """Binary tournament: pick *k* random, return best by (rank, -crowding)."""
+        indices = self._rng.choice(len(pop), size=min(k, len(pop)), replace=False)
+        contenders = [pop[i] for i in indices]
+        return min(contenders, key=lambda c: (c.rank, -c.crowding_distance))
+
+    def _crossover(
+        self, p1: PredictionRequest, p2: PredictionRequest,
+    ) -> PredictionRequest:
+        """Simulated binary crossover (SBX) for continuous + uniform swap for categorical."""
+        d = p1.model_dump()
+        d2 = p2.model_dump()
+
+        # Categorical: 50 / 50 swap
+        for key in ("mxene_type", "terminations", "electrolyte", "deposition_method"):
+            if self._rng.random() < 0.5:
+                d[key] = d2[key]
+
+        # Continuous: SBX (eta=2)
+        eta = 2.0
+        for name, lo, hi, _ in self.CONTINUOUS_PARAMS:
+            v1 = d.get(name)
+            v2 = d2.get(name)
+            if v1 is None or v2 is None:
+                # If one parent has it and the other doesn't, 50/50
+                d[name] = v1 if self._rng.random() < 0.5 else v2
+                continue
+            u = self._rng.random()
+            if u <= 0.5:
+                beta = (2.0 * u) ** (1.0 / (eta + 1.0))
+            else:
+                beta = (1.0 / (2.0 * (1.0 - u))) ** (1.0 / (eta + 1.0))
+            child_val = 0.5 * ((1 + beta) * v1 + (1 - beta) * v2)
+            d[name] = float(np.clip(child_val, lo, hi))
+
+        return PredictionRequest(**d)
+
+    def _mutate(
+        self,
+        individual: PredictionRequest,
+        constraints: dict[str, Any] | None,
+        mutation_rate: float = 0.15,
+    ) -> PredictionRequest:
+        """Polynomial mutation for continuous, random swap for categorical."""
+        d = individual.model_dump()
+
+        # Categorical mutation
+        if self._rng.random() < mutation_rate:
+            d["mxene_type"] = self._rng.choice(self.MXENE_TYPES)
+        if self._rng.random() < mutation_rate:
+            d["terminations"] = self._rng.choice(self.TERMINATIONS)
+        if self._rng.random() < mutation_rate:
+            d["electrolyte"] = self._rng.choice(self.ELECTROLYTES)
+        if self._rng.random() < mutation_rate:
+            d["deposition_method"] = self._rng.choice(self.DEPOSITION_METHODS)
+
+        # Continuous: polynomial mutation (eta_m = 20)
+        eta_m = 20.0
+        for name, lo, hi, is_opt in self.CONTINUOUS_PARAMS:
+            if d.get(name) is None:
+                continue
+            if self._rng.random() >= mutation_rate:
+                continue
+            val = d[name]
+            delta = (val - lo) / (hi - lo) if hi != lo else 0.5
+            u = self._rng.random()
+            if u < 0.5:
+                deltaq = (2.0 * u) ** (1.0 / (eta_m + 1.0)) - 1.0
+            else:
+                deltaq = 1.0 - (2.0 * (1.0 - u)) ** (1.0 / (eta_m + 1.0))
+            val_new = val + deltaq * (hi - lo)
+            d[name] = float(np.clip(val_new, lo, hi))
+
+        # Apply external constraints if provided
+        if constraints:
+            lo_t = constraints.get("thickness_min", 1.0)
+            hi_t = constraints.get("thickness_max", 30.0)
+            d["thickness_um"] = float(np.clip(d["thickness_um"], lo_t, hi_t))
+
+        return PredictionRequest(**d)
 
     def _generate_initial_population(
         self,
@@ -108,26 +245,18 @@ class MultiObjectiveOptimizer:
             List of candidate designs
         """
         population = []
-        
-        # Define design space with actual enum values
-        mxene_types = [e.value for e in MXeneType]
-        terminations = [e.value for e in Termination]
-        electrolytes = [e.value for e in Electrolyte]
-        deposition_methods = [e.value for e in DepositionMethod]
+        rng = self._rng
         
         # Apply constraints
         thickness_min = constraints.get("thickness_min", 1.0) if constraints else 1.0
         thickness_max = constraints.get("thickness_max", 30.0) if constraints else 30.0
         
-        # Generate diverse samples
-        rng = np.random.default_rng(42)
-        
         for i in range(size):
             # Sample categorical variables
-            mxene_type = rng.choice(mxene_types)
-            termination = rng.choice(terminations)
-            electrolyte = rng.choice(electrolytes)
-            deposition_method = rng.choice(deposition_methods)
+            mxene_type = rng.choice(self.MXENE_TYPES)
+            termination = rng.choice(self.TERMINATIONS)
+            electrolyte = rng.choice(self.ELECTROLYTES)
+            deposition_method = rng.choice(self.DEPOSITION_METHODS)
             
             # Sample continuous variables with Latin Hypercube
             thickness = rng.uniform(thickness_min, thickness_max)
@@ -254,23 +383,26 @@ class MultiObjectiveOptimizer:
                 p.is_pareto_optimal = True
                 fronts[0].append(p)
         
+        # Build index map for O(1) lookup (fixes O(n³) from list.index())
+        idx_map = {id(c): i for i, c in enumerate(candidates)}
+
         # Build subsequent fronts
-        i = 0
-        while fronts[i]:
+        fi = 0
+        while fronts[fi]:
             next_front = []
-            for p_idx in [candidates.index(p) for p in fronts[i]]:
+            for p in fronts[fi]:
+                p_idx = idx_map[id(p)]
                 for q_idx in dominated_solutions[p_idx]:
                     domination_count[q_idx] -= 1
                     if domination_count[q_idx] == 0:
-                        candidates[q_idx].rank = i + 1
+                        candidates[q_idx].rank = fi + 1
                         next_front.append(candidates[q_idx])
-            
-            i += 1
+            fi += 1
             if next_front:
                 fronts.append(next_front)
             else:
                 break
-        
+
         return fronts
 
     def _dominates(

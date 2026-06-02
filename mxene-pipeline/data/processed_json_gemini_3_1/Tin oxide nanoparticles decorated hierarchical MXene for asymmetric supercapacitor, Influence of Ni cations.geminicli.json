@@ -1,0 +1,63 @@
+{
+  "experiments": [
+    {
+      "mxene_type": "Ti3C2",
+      "electrolyte": "6 M KOH",
+      "areal_capacitance_mf_cm2": 350,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": null,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": null,
+      "cycling_stability": null,
+      "num_cycles": null,
+      "synthesis_method": "solvothermal"
+    },
+    {
+      "mxene_type": "Ti3C2",
+      "electrolyte": "6 M KOH",
+      "areal_capacitance_mf_cm2": 3300,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 1100,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": null,
+      "cycling_stability": 83,
+      "num_cycles": 4000,
+      "synthesis_method": "solvothermal"
+    },
+    {
+      "mxene_type": "Ti3C2",
+      "electrolyte": "6 M KOH",
+      "areal_capacitance_mf_cm2": 1350,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": null,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": null,
+      "cycling_stability": null,
+      "num_cycles": null,
+      "synthesis_method": "solvothermal"
+    },
+    {
+      "mxene_type": "Ti3C2",
+      "electrolyte": "PAAm-KOH hydrogel",
+      "areal_capacitance_mf_cm2": 335,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": null,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": null,
+      "cycling_stability": 70,
+      "num_cycles": 10000,
+      "synthesis_method": "solvothermal"
+    }
+  ],
+  "paper_title": "Tin oxide nanoparticles decorated hierarchical MXene for asymmetric supercapacitor: Influence of Ni cations",
+  "paper_doi": "Tin oxide nanoparticles decorated hierarchical MXene for asymmetric supercapacitor, Influence of Ni cations",
+  "extraction_confidence": "high"
+}

@@ -180,8 +180,8 @@ async def predict_filtering(
         frequencies = np.logspace(np.log10(freq_min), np.log10(freq_max), 300)
         
         # Get CPE parameters from geometry
-        geometry_dict = request.geometry.dict()
-        film_dict = request.mxene_film.dict()
+        geometry_dict = request.geometry.model_dump()
+        film_dict = request.mxene_film.model_dump()
         
         # Check if fitting from data
         if request.fit_from_data.enable and request.fit_from_data.digitized_bode_csv_path:
@@ -292,9 +292,9 @@ async def predict_filtering(
         # Store run in database
         import json
         run = FilteringRun(
-            input_json=json.dumps(request.dict()),
-            kpis_json=json.dumps(response.kpis.dict()),
-            params_json=json.dumps(response.params.dict()),
+            input_json=json.dumps(request.model_dump()),
+            kpis_json=json.dumps(response.kpis.model_dump()),
+            params_json=json.dumps(response.params.model_dump()),
             area_mm2=device_area,
         )
         db.add(run)
@@ -327,7 +327,7 @@ async def optimize_filtering(
         
         # Generate diverse population
         rng = np.random.default_rng(42)
-        film_dict = request.mxene_film.dict()
+        film_dict = request.mxene_film.model_dump()
         
         for _ in range(population_size):
             # Sample geometry parameters

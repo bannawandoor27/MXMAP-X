@@ -1,0 +1,49 @@
+{
+  "experiments": [
+    {
+      "mxene_type": "Ti3C2Tx/GNPs (20 wt%)",
+      "electrolyte": "1 M H2SO4",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 226.6,
+      "ssa_m2_g": 14.25,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": 5,
+      "current_density_a_g": null,
+      "cycling_stability": 84.2,
+      "num_cycles": 5000,
+      "synthesis_method": "Mixed-acid method"
+    },
+    {
+      "mxene_type": "Ti3C2Tx/GNPs (20 wt%)",
+      "electrolyte": "1 M H2SO4",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 144.4,
+      "ssa_m2_g": 14.25,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": 10,
+      "current_density_a_g": null,
+      "cycling_stability": null,
+      "num_cycles": null,
+      "synthesis_method": "Mixed-acid method"
+    },
+    {
+      "mxene_type": "Ti3C2Tx",
+      "electrolyte": "1 M H2SO4",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": null,
+      "ssa_m2_g": 6.05,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": null,
+      "cycling_stability": null,
+      "num_cycles": null,
+      "synthesis_method": "Mixed-acid method"
+    }
+  ],
+  "paper_title": "Machine learning models for prediction of electrochemical properties in supercapacitor electrodes using MXene and graphene nanoplatelets",
+  "paper_doi": "ml_electrochemical_mxene_graphene",
+  "extraction_confidence": "high"
+}

@@ -1,0 +1,35 @@
+{
+  "experiments": [
+    {
+      "mxene_type": "Ti3C2Tx",
+      "electrolyte": null,
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": 1500,
+      "specific_capacitance_f_g": null,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": null,
+      "cycling_stability": null,
+      "num_cycles": null,
+      "synthesis_method": null
+    },
+    {
+      "mxene_type": "MXene@Ni-MOF",
+      "electrolyte": null,
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": null,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": null,
+      "cycling_stability": null,
+      "num_cycles": 5000,
+      "synthesis_method": null
+    }
+  ],
+  "paper_title": "Recent advances in machine learning applications for MXene materials: Design, synthesis, characterization, and commercialization for energy and environmental applications",
+  "paper_doi": "ml_applications_mxene_energy_environment",
+  "extraction_confidence": "high"
+}

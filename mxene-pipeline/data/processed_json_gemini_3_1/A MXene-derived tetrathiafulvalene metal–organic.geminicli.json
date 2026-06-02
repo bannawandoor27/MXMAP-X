@@ -1,0 +1,49 @@
+{
+  "experiments": [
+    {
+      "mxene_type": "V2CTx",
+      "electrolyte": "3 M KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 640,
+      "ssa_m2_g": 971,
+      "annealing_temperature_c": 180,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 1,
+      "cycling_stability": null,
+      "num_cycles": null,
+      "synthesis_method": "Solvothermal"
+    },
+    {
+      "mxene_type": "V2CTx",
+      "electrolyte": "3 M KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 525,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": 180,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 1,
+      "cycling_stability": null,
+      "num_cycles": null,
+      "synthesis_method": "Solvothermal"
+    },
+    {
+      "mxene_type": "V2CTx",
+      "electrolyte": "3 M KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": null,
+      "ssa_m2_g": 971,
+      "annealing_temperature_c": 180,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 5,
+      "cycling_stability": 91,
+      "num_cycles": 30000,
+      "synthesis_method": "Solvothermal"
+    }
+  ],
+  "paper_title": "A MXene-derived tetrathiafulvalene metal\u2013organic framework for ultra-long supercapattery",
+  "paper_doi": "A MXene-derived tetrathiafulvalene metal\u2013organic",
+  "extraction_confidence": "High"
+}

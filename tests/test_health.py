@@ -21,12 +21,9 @@ async def test_health_check(client: AsyncClient) -> None:
 
 @pytest.mark.asyncio
 async def test_root_endpoint(client: AsyncClient) -> None:
-    """Test root endpoint."""
+    """Test root endpoint returns web UI (HTML)."""
     response = await client.get("/")
-    
+
     assert response.status_code == 200
-    data = response.json()
-    
-    assert "message" in data
-    assert "version" in data
-    assert "docs" in data
+    # Root now serves the web interface (HTML), not a JSON API response
+    assert "text/html" in response.headers.get("content-type", "")
