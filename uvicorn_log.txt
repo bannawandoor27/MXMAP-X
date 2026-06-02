@@ -1,0 +1,24 @@
+INFO:     Started server process [27214]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8888 (Press CTRL+C to quit)
+Loading trained XGBoost model from models/cache...
+✓ Loaded model version: vv0.2.0-20260308_155525
+INFO:     127.0.0.1:53070 - "GET /api/v1/health HTTP/1.1" 200 OK
+/Users/ben/Desktop/works/chem_projs/MXMAP-X/app/ml/feature_engineering.py:195: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  sa = df["specific_surface_area_m2g"].fillna(80.0).values
+/Users/ben/Desktop/works/chem_projs/MXMAP-X/app/ml/feature_engineering.py:196: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  pv = df["pore_volume_cm3g"].fillna(0.12).values
+/Users/ben/Desktop/works/chem_projs/MXMAP-X/app/ml/feature_engineering.py:211: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  spacing = df["interlayer_spacing_nm"].fillna(1.2).values
+INFO:     127.0.0.1:53075 - "POST /api/v1/predict HTTP/1.1" 200 OK
+/Users/ben/Desktop/works/chem_projs/MXMAP-X/app/ml/feature_engineering.py:195: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  sa = df["specific_surface_area_m2g"].fillna(80.0).values
+/Users/ben/Desktop/works/chem_projs/MXMAP-X/app/ml/feature_engineering.py:196: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  pv = df["pore_volume_cm3g"].fillna(0.12).values
+/Users/ben/Desktop/works/chem_projs/MXMAP-X/app/ml/feature_engineering.py:211: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  spacing = df["interlayer_spacing_nm"].fillna(1.2).values
+INFO:     127.0.0.1:53082 - "POST /api/v1/predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53084 - "POST /api/v1/predict/batch HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:53086 - "GET /api/v1/models/metrics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53088 - "GET /api/v1/devices HTTP/1.1" 200 OK

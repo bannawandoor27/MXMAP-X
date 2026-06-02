@@ -1,7 +1,7 @@
 """Application configuration management."""
 
 from typing import Any
-from pydantic import PostgresDsn, field_validator
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
 
     # Database Configuration
-    DATABASE_URL: PostgresDsn
+    DATABASE_URL: str
     DATABASE_ECHO: bool = False
 
     # CORS Configuration

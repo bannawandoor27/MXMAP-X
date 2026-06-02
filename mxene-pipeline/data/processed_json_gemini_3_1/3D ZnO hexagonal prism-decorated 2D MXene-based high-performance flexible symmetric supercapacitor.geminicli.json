@@ -1,0 +1,49 @@
+{
+  "paper_title": "3D ZnO hexagonal prism-decorated 2D MXene-based high-performance flexible symmetric supercapacitor",
+  "paper_doi": "3D ZnO hexagonal prism-decorated 2D MXene-based high-performance flexible symmetric supercapacitor",
+  "extraction_confidence": "High",
+  "experiments": [
+    {
+      "mxene_type": "Ti3C2Tx",
+      "electrolyte": "1 M H2SO4",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 73,
+      "ssa_m2_g": 3.85,
+      "annealing_temperature_c": 80,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 0.5,
+      "cycling_stability": 84.5,
+      "num_cycles": 12000,
+      "synthesis_method": "HF etching"
+    },
+    {
+      "mxene_type": "ZnO-decorated Ti3C2Tx",
+      "electrolyte": "1 M H2SO4",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 140,
+      "ssa_m2_g": 6.49,
+      "annealing_temperature_c": 180,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 0.5,
+      "cycling_stability": 97.2,
+      "num_cycles": 12000,
+      "synthesis_method": "Hydrothermal"
+    },
+    {
+      "mxene_type": "ZnO-decorated Ti3C2Tx",
+      "electrolyte": "1 M H2SO4",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 32,
+      "ssa_m2_g": 6.49,
+      "annealing_temperature_c": 180,
+      "scan_rate_mv_s": 10,
+      "current_density_a_g": 1,
+      "cycling_stability": 79,
+      "num_cycles": 4000,
+      "synthesis_method": "Hydrothermal"
+    }
+  ]
+}

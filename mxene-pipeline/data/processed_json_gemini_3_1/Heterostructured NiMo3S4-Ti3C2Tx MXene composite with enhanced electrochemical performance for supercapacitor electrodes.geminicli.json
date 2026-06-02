@@ -1,0 +1,91 @@
+{
+  "experiments": [
+    {
+      "mxene_type": "Ti3C2Tx",
+      "electrolyte": "6 mol/L KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 1443.6,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": 180,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 1,
+      "cycling_stability": 89.68,
+      "num_cycles": 10000,
+      "synthesis_method": "Electrostatic self-assembly"
+    },
+    {
+      "mxene_type": "Ti3C2Tx",
+      "electrolyte": "6 mol/L KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 1237.6,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": 180,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 2,
+      "cycling_stability": null,
+      "num_cycles": null,
+      "synthesis_method": "Electrostatic self-assembly"
+    },
+    {
+      "mxene_type": "Ti3C2Tx",
+      "electrolyte": "6 mol/L KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 1188.9,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": 180,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 5,
+      "cycling_stability": null,
+      "num_cycles": null,
+      "synthesis_method": "Electrostatic self-assembly"
+    },
+    {
+      "mxene_type": "Ti3C2Tx",
+      "electrolyte": "6 mol/L KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 385.7,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": 50,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 1,
+      "cycling_stability": 61.59,
+      "num_cycles": 10000,
+      "synthesis_method": "LiF/HCl etching"
+    },
+    {
+      "mxene_type": null,
+      "electrolyte": "6 mol/L KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 714.6,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": 180,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 1,
+      "cycling_stability": 68.4,
+      "num_cycles": 10000,
+      "synthesis_method": "Hydrothermal"
+    },
+    {
+      "mxene_type": "Ti3C2Tx",
+      "electrolyte": "6 mol/L KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 149.9,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 1,
+      "cycling_stability": 82.84,
+      "num_cycles": 10000,
+      "synthesis_method": "Asymmetric Supercapacitor Assembly"
+    }
+  ],
+  "paper_title": "Heterostructured NiMo3S4/Ti3C2Tx MXene composite with enhanced electrochemical performance for supercapacitor electrodes",
+  "paper_doi": "Heterostructured NiMo3S4-Ti3C2Tx MXene composite with enhanced electrochemical performance for supercapacitor electrodes",
+  "extraction_confidence": "high"
+}

@@ -23,7 +23,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql://mxmap_user:mxmap_password@db:5432/mxmap_db
+      DATABASE_URL: postgresql+asyncpg://mxmap_user:mxmap_password@db:5432/mxmap_db
       DEBUG: "true"
     depends_on:
       db:
@@ -31,6 +31,9 @@ services:
     volumes:
       - ./app:/app/app
       - ./config:/app/config
+      - ./models:/app/models
+      - ./data:/app/data
+      - ./scripts:/app/scripts
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 volumes:

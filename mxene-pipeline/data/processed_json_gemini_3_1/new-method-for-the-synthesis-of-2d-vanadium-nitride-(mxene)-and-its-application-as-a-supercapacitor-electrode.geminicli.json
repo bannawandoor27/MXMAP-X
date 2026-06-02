@@ -1,0 +1,35 @@
+{
+  "experiments": [
+    {
+      "mxene_type": "V2NTx",
+      "electrolyte": "3.5 M KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 112.8,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": null,
+      "cycling_stability": 96,
+      "num_cycles": 10000,
+      "synthesis_method": "Selective etching of Al from V2AlN using LiF-HCl followed by DMSO delamination"
+    },
+    {
+      "mxene_type": "V2NTx",
+      "electrolyte": "3.5 M KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 25.3,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": null,
+      "cycling_stability": null,
+      "num_cycles": null,
+      "synthesis_method": "Selective etching of Al from V2AlN using LiF-HCl followed by DMSO delamination"
+    }
+  ],
+  "paper_title": "New Method for the Synthesis of 2D Vanadium Nitride (MXene) and Its Application as a Supercapacitor Electrode",
+  "paper_doi": "new-method-for-the-synthesis-of-2d-vanadium-nitride-(mxene)-and-its-application-as-a-supercapacitor-electrode",
+  "extraction_confidence": "high"
+}

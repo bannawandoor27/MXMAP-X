@@ -204,8 +204,8 @@ async def recommend_printing(
         # Store run in database
         import json
         run = PrintingRun(
-            input_json=json.dumps(request.dict()),
-            output_json=json.dumps(response.dict()),
+            input_json=json.dumps(request.model_dump()),
+            output_json=json.dumps(response.model_dump()),
             manufacturability_score=manuf_score,
         )
         db.add(run)

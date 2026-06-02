@@ -139,16 +139,35 @@ class FeatureEngineer:
         """Prepare numerical features with imputation."""
         numerical_data = []
         
+        # Default values for imputation (used during training)
+        default_values = {
+            "thickness_um": 5.0,
+            "electrolyte_concentration": 1.0,
+            "annealing_temp_c": 150.0,
+            "annealing_time_min": 60.0,
+            "interlayer_spacing_nm": 1.2,
+            "specific_surface_area_m2g": 80.0,
+            "pore_volume_cm3g": 0.12,
+            "optical_transmittance": 70.0,
+            "sheet_resistance_ohm_sq": 50.0,
+        }
+        
         for col in self.numerical_features:
             if col in df.columns:
-                values = df[col].values
-                # Impute missing values with median
-                median = np.nanmedian(values)
+                # Convert to float to handle None values properly
+                values = pd.to_numeric(df[col], errors='coerce').values
+                # Impute missing values with median (or default if all missing)
+                if np.all(np.isnan(values)):
+                    # All values are NaN/None, use default
+                    median = default_values.get(col, 0.0)
+                else:
+                    median = np.nanmedian(values)
                 values = np.where(np.isnan(values), median, values)
                 numerical_data.append(values)
             else:
-                # Feature not present, use zeros
-                numerical_data.append(np.zeros(len(df)))
+                # Feature not present, use default values
+                default_val = default_values.get(col, 0.0)
+                numerical_data.append(np.full(len(df), default_val))
         
         return np.column_stack(numerical_data)
 

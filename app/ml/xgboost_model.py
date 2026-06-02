@@ -124,23 +124,25 @@ class XGBoostPredictor(BasePredictor):
             )
             self.models[target_name]["upper"] = upper_model
             
-            # Evaluate on validation set
+            # Evaluate: use validation set if available, else fall back to training set
             if X_val_transformed is not None and y_val is not None:
-                val_metrics = self._evaluate_model(
-                    mean_model,
-                    X_val_transformed,
-                    y_val[target_name],
-                )
-                self.metrics[target_name] = val_metrics
-                training_results[target_name] = val_metrics
-                
-                print(f"  R²: {val_metrics['r2']:.4f}")
-                print(f"  RMSE: {val_metrics['rmse']:.4f}")
-                print(f"  MAE: {val_metrics['mae']:.4f}")
-        
+                eval_X = X_val_transformed
+                eval_y = y_val[target_name]
+            else:
+                eval_X = X_train_transformed
+                eval_y = target_values
+
+            val_metrics = self._evaluate_model(mean_model, eval_X, eval_y)
+            self.metrics[target_name] = val_metrics
+            training_results[target_name] = val_metrics
+
+            print(f"  R²: {val_metrics['r2']:.4f}")
+            print(f"  RMSE: {val_metrics['rmse']:.4f}")
+            print(f"  MAE: {val_metrics['mae']:.4f}")
+
         # Calculate feature importance (average across all mean models)
         self._calculate_feature_importance()
-        
+
         return training_results
 
     def _train_single_model(
@@ -280,12 +282,10 @@ class XGBoostPredictor(BasePredictor):
     async def predict_batch(
         self, requests: list[PredictionRequest]
     ) -> list[PredictionResult]:
-        """Generate predictions for multiple devices."""
-        results = []
-        for request in requests:
-            result = await self.predict(request)
-            results.append(result)
-        return results
+        """Generate predictions for multiple devices in parallel."""
+        import asyncio
+        results = await asyncio.gather(*(self.predict(r) for r in requests))
+        return list(results)
 
     def _predict_with_uncertainty(
         self, X: np.ndarray, target_name: str

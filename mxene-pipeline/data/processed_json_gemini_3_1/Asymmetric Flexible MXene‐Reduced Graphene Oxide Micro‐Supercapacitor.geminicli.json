@@ -1,0 +1,49 @@
+{
+  "experiments": [
+    {
+      "mxene_type": "Ti3C2Tx",
+      "electrolyte": "PVA/H2SO4",
+      "areal_capacitance_mf_cm2": 2.4,
+      "volumetric_capacitance_f_cm3": 80,
+      "specific_capacitance_f_g": null,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": 2,
+      "current_density_a_g": null,
+      "cycling_stability": 97,
+      "num_cycles": 10000,
+      "synthesis_method": "MILD"
+    },
+    {
+      "mxene_type": "Ti3C2Tx",
+      "electrolyte": "PVA/H2SO4",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": null,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": null,
+      "cycling_stability": 95,
+      "num_cycles": 10000,
+      "synthesis_method": "MILD"
+    },
+    {
+      "mxene_type": "Ti3C2Tx",
+      "electrolyte": "PVA/H2SO4",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": null,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": null,
+      "cycling_stability": 75,
+      "num_cycles": 10000,
+      "synthesis_method": "MILD"
+    }
+  ],
+  "paper_title": "Asymmetric Flexible MXene-Reduced Graphene Oxide Micro-Supercapacitor",
+  "paper_doi": "Asymmetric Flexible MXene\u2010Reduced Graphene Oxide Micro\u2010Supercapacitor",
+  "extraction_confidence": "high"
+}

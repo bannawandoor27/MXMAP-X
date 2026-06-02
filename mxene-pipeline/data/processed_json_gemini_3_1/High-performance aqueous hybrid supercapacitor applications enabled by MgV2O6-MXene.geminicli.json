@@ -1,0 +1,49 @@
+{
+  "experiments": [
+    {
+      "mxene_type": "MgV2O6",
+      "electrolyte": "2M KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 491,
+      "ssa_m2_g": 16.65,
+      "annealing_temperature_c": 600,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 1,
+      "cycling_stability": 94,
+      "num_cycles": 6000,
+      "synthesis_method": "hydrothermal"
+    },
+    {
+      "mxene_type": "MgV2O6/Ti3C2",
+      "electrolyte": "2M KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 788,
+      "ssa_m2_g": 22.13,
+      "annealing_temperature_c": 600,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 1,
+      "cycling_stability": 95.5,
+      "num_cycles": 6000,
+      "synthesis_method": "hydrothermal followed by sonication"
+    },
+    {
+      "mxene_type": "MgV2O6/Ti3C2//AC",
+      "electrolyte": "2M KOH",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 133.4,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 1,
+      "cycling_stability": 93,
+      "num_cycles": 5000,
+      "synthesis_method": "aqueous hybrid supercapacitor assembly"
+    }
+  ],
+  "paper_title": "High-performance aqueous hybrid supercapacitor applications enabled by MgV2O6/MXene",
+  "paper_doi": "High-performance aqueous hybrid supercapacitor applications enabled by MgV2O6-MXene",
+  "extraction_confidence": "high"
+}

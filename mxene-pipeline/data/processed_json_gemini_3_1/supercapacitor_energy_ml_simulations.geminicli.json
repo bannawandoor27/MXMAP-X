@@ -1,0 +1,35 @@
+{
+  "experiments": [
+    {
+      "mxene_type": "Ti3C2Tx",
+      "electrolyte": "NaCl-PVA",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 112,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": 1,
+      "cycling_stability": 95,
+      "num_cycles": 5000,
+      "synthesis_method": "vacuum filtration"
+    },
+    {
+      "mxene_type": "MXene/GNP composite",
+      "electrolyte": null,
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": 226.6,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": null,
+      "cycling_stability": null,
+      "num_cycles": 10000,
+      "synthesis_method": null
+    }
+  ],
+  "paper_title": "Energy storage in supercapacitor researches: Interdisciplinary applications from molecular simulations to machine learning",
+  "paper_doi": "supercapacitor_energy_ml_simulations",
+  "extraction_confidence": "high"
+}

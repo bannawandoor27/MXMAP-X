@@ -1,0 +1,63 @@
+{
+  "paper_title": "Electrospun MXene/Carbon Nanofibers as Supercapacitor Electrodes",
+  "paper_doi": "Electrospun MXeneIcarbon nanofibers as supercapacitor electrodes",
+  "extraction_confidence": "high",
+  "experiments": [
+    {
+      "mxene_type": "Ti3C2Tx",
+      "electrolyte": "1 M H2SO4",
+      "areal_capacitance_mf_cm2": 205,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": null,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": 50,
+      "current_density_a_g": null,
+      "cycling_stability": null,
+      "num_cycles": null,
+      "synthesis_method": "Electrospinning and carbonization"
+    },
+    {
+      "mxene_type": "Ti3C2Tx",
+      "electrolyte": "1 M H2SO4",
+      "areal_capacitance_mf_cm2": 239,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": null,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": 800,
+      "scan_rate_mv_s": 10,
+      "current_density_a_g": null,
+      "cycling_stability": null,
+      "num_cycles": null,
+      "synthesis_method": "Electrospinning and carbonization"
+    },
+    {
+      "mxene_type": "Ti3C2Tx",
+      "electrolyte": "1 M H2SO4",
+      "areal_capacitance_mf_cm2": null,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": null,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": 700,
+      "scan_rate_mv_s": 50,
+      "current_density_a_g": null,
+      "cycling_stability": null,
+      "num_cycles": 10000,
+      "synthesis_method": "Electrospinning and carbonization"
+    },
+    {
+      "mxene_type": "Ti3C2Tx",
+      "electrolyte": "1 M H2SO4",
+      "areal_capacitance_mf_cm2": 244,
+      "volumetric_capacitance_f_cm3": null,
+      "specific_capacitance_f_g": null,
+      "ssa_m2_g": null,
+      "annealing_temperature_c": null,
+      "scan_rate_mv_s": null,
+      "current_density_a_g": null,
+      "cycling_stability": null,
+      "num_cycles": null,
+      "synthesis_method": "Electrospinning and carbonization"
+    }
+  ]
+}
