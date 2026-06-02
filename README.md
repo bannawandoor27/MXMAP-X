@@ -3,6 +3,8 @@
 > **ML-powered prediction, optimization, and process-aware design for MXene microsupercapacitors.**  
 > FastAPI backend · XGBoost models · Interactive web UI · AC-line filtering · Printing process design · Literature extraction pipeline
 
+![MXMAP-X End-to-End Workflow](workflow_video/workflow.gif)
+
 ---
 
 ## Table of Contents
