@@ -59,8 +59,8 @@ def map_corpus_to_training(df: pd.DataFrame) -> pd.DataFrame:
     out = pd.DataFrame()
 
     # Direct mappings
-    out["mxene_type"] = df.get("mxene_type", pd.Series(dtype=str))
-    out["electrolyte"] = df.get("electrolyte", pd.Series(dtype=str))
+    out["mxene_type"] = df.get("mxene_type", pd.Series(dtype=str)).fillna("Ti3C2Tx")
+    out["electrolyte"] = df.get("electrolyte", pd.Series(dtype=str)).fillna("1 M H2SO4")
     out["areal_capacitance_mf_cm2"] = df.get("areal_capacitance_mf_cm2")
     out["specific_surface_area_m2g"] = df.get("ssa_m2_g")
     out["annealing_temp_c"] = df.get("annealing_temperature_c")
@@ -88,7 +88,7 @@ def map_corpus_to_training(df: pd.DataFrame) -> pd.DataFrame:
     out["current_density_a_g"] = df.get("current_density_a_g")
 
     # Fill synthesis_method → deposition_method
-    out["deposition_method"] = df.get("synthesis_method", "vacuum_filtration")
+    out["deposition_method"] = df.get("synthesis_method", pd.Series("vacuum_filtration", index=df.index)).fillna("vacuum_filtration")
 
     # Defaults for missing features
     out["terminations"] = "mixed"
@@ -137,7 +137,14 @@ def combine_and_clean(
         if col in real_rows.columns and real_rows[col].dtype in ("float64", "Float64"):
             median = real_rows[col].median()
             if pd.isna(median):
-                median = 0.0 # dummy if no papers extracted this
+                if col == "thickness_um": median = 5.0
+                elif col == "electrolyte_concentration": median = 1.0
+                elif col == "annealing_time_min": median = 60.0
+                elif col == "interlayer_spacing_nm": median = 1.2
+                elif col == "pore_volume_cm3g": median = 0.1
+                elif col == "optical_transmittance": median = 80.0
+                elif col == "sheet_resistance_ohm_sq": median = 50.0
+                else: median = 1.0 # default fallback
             real_rows[col] = real_rows[col].fillna(median)
 
     combined = real_rows[ALL_COLS].copy()

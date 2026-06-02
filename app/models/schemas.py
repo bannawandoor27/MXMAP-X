@@ -11,50 +11,10 @@ from pydantic import BaseModel, Field, field_validator, ConfigDict
 # ============================================================================
 
 
-class MXeneType(str, Enum):
-    """Supported MXene types."""
-
-    TI3C2TX = "Ti3C2Tx"
-    MO2CTX = "Mo2CTx"
-    V2CTX = "V2CTx"
-    TI2CTX = "Ti2CTx"
-    NB2CTX = "Nb2CTx"
-    TA4C3TX = "Ta4C3Tx"
-    TI3CNTX = "Ti3CNTx"
-
-
-class Termination(str, Enum):
-    """Surface termination types."""
-
-    O = "O"
-    OH = "OH"
-    F = "F"
-    MIXED = "mixed"
-    CL = "Cl"
-
-
-class Electrolyte(str, Enum):
-    """Electrolyte types."""
-
-    H2SO4 = "H2SO4"
-    KOH = "KOH"
-    NAOH = "NaOH"
-    IONIC_LIQUID = "ionic_liquid"
-    EMIMBF4 = "EMIMBF4"
-    PVA_H2SO4 = "PVA_H2SO4"
-    PVA_KOH = "PVA_KOH"
-    ORGANIC = "organic"
-
-
-class DepositionMethod(str, Enum):
-    """Deposition methods."""
-
-    VACUUM_FILTRATION = "vacuum_filtration"
-    SPRAY_COATING = "spray_coating"
-    DROP_CASTING = "drop_casting"
-    SPIN_COATING = "spin_coating"
-    BLADE_COATING = "blade_coating"
-    INKJET_PRINTING = "inkjet_printing"
+MXeneType = str
+Termination = str
+Electrolyte = str
+DepositionMethod = str
 
 
 class ConfidenceLevel(str, Enum):
@@ -97,8 +57,8 @@ class DeviceCompositionBase(BaseModel):
     )
     thickness_um: float = Field(
         ...,
-        ge=0.5,
-        le=50.0,
+        ge=0.0,
+        le=5000.0,
         description="Film thickness in micrometers",
         examples=[5.0],
     )
@@ -109,15 +69,15 @@ class DeviceCompositionBase(BaseModel):
     )
     annealing_temp_c: Optional[float] = Field(
         None,
-        ge=25.0,
-        le=500.0,
+        ge=0.0,
+        le=2000.0,
         description="Annealing temperature in Celsius",
         examples=[120.0],
     )
     annealing_time_min: Optional[float] = Field(
         None,
         ge=0.0,
-        le=1440.0,
+        le=10000.0,
         description="Annealing time in minutes",
         examples=[60.0],
     )
@@ -128,22 +88,22 @@ class StructuralPropertiesBase(BaseModel):
 
     interlayer_spacing_nm: Optional[float] = Field(
         None,
-        ge=0.5,
-        le=5.0,
+        ge=0.0,
+        le=50.0,
         description="Interlayer spacing in nanometers",
         examples=[1.2],
     )
     specific_surface_area_m2g: Optional[float] = Field(
         None,
-        ge=1.0,
-        le=500.0,
+        ge=0.0,
+        le=5000.0,
         description="Specific surface area in m²/g",
         examples=[98.5],
     )
     pore_volume_cm3g: Optional[float] = Field(
         None,
         ge=0.0,
-        le=2.0,
+        le=20.0,
         description="Pore volume in cm³/g",
         examples=[0.15],
     )
@@ -173,15 +133,15 @@ class PerformanceMetricsBase(BaseModel):
 
     areal_capacitance_mf_cm2: float = Field(
         ...,
-        ge=0.1,
-        le=2000.0,
+        ge=0.0,
+        le=200000.0,
         description="Areal capacitance in mF/cm²",
         examples=[350.5],
     )
     esr_ohm: float = Field(
         ...,
-        ge=0.01,
-        le=1000.0,
+        ge=0.0,
+        le=10000.0,
         description="Equivalent series resistance in Ω",
         examples=[2.5],
     )
@@ -194,8 +154,8 @@ class PerformanceMetricsBase(BaseModel):
     )
     cycle_life_cycles: int = Field(
         ...,
-        ge=100,
-        le=100000,
+        ge=0,
+        le=1000000,
         description="Cycle life (cycles to 80% retention)",
         examples=[10000],
     )

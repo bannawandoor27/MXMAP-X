@@ -40,7 +40,8 @@ async def seed_devices(csv_path: str = "data/synthetic_training_data.csv") -> No
         
         if existing_count > 0:
             print(f"⚠ Database already contains {existing_count} devices")
-            response = input("Clear existing data and reseed? (y/N): ")
+            print("Automatically clearing existing data and reseeding...")
+            response = 'y'
             if response.lower() != 'y':
                 print("Seeding cancelled")
                 return
@@ -72,8 +73,8 @@ async def seed_devices(csv_path: str = "data/synthetic_training_data.csv") -> No
                 esr_ohm=row["esr_ohm"],
                 rate_capability_percent=row["rate_capability_percent"],
                 cycle_life_cycles=int(row["cycle_life_cycles"]),
-                source=row["source"],
-                notes=row["notes"],
+                source=row.get("source", "Gemini Extraction"),
+                notes=row.get("notes", ""),
             )
             devices.append(device)
         

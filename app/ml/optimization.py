@@ -38,10 +38,10 @@ class MultiObjectiveOptimizer:
     """
 
     # Design-space constants
-    MXENE_TYPES = [e.value for e in MXeneType]
-    TERMINATIONS = [e.value for e in Termination]
-    ELECTROLYTES = [e.value for e in Electrolyte]
-    DEPOSITION_METHODS = [e.value for e in DepositionMethod]
+    MXENE_TYPES = ["Ti3C2Tx", "Mo2CTx", "V2CTx", "Ti2CTx", "Nb2CTx", "Ta4C3Tx", "Ti3CNTx"]
+    TERMINATIONS = ["O", "OH", "F", "mixed", "Cl"]
+    ELECTROLYTES = ["H2SO4", "KOH", "NaOH", "ionic_liquid", "EMIMBF4", "PVA_H2SO4", "PVA_KOH", "organic"]
+    DEPOSITION_METHODS = ["vacuum_filtration", "spray_coating", "drop_casting", "spin_coating", "blade_coating", "inkjet_printing"]
 
     # Continuous parameter bounds (name, min, max, is_optional)
     CONTINUOUS_PARAMS = [
